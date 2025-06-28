@@ -19,20 +19,14 @@ export default function AppSidebar() {
               </SidebarMenuItem>
 
               <SidebarMenuItem asChild>
-                <Link to="/crearSolicitud" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-200 transition text-sm">
-                  <BadgePlus className="w-4 h-4"/>Crear Solicitud
-                </Link>
-              </SidebarMenuItem>
-                    
-              <SidebarMenuItem asChild>
-                <Link to="/solicitudes" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-200 transition text-sm">
-                  <Radio className="w-4 h-4"/>Solicitudes Activas
+                <Link to="/productList" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-200 transition text-sm">
+                  <FormInputIcon className="w-4 h-4"/>Productos
                 </Link>
               </SidebarMenuItem>
 
               <SidebarMenuItem asChild>
-                <Link to="/pructList" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-200 transition text-sm">
-                  <FormInputIcon className="w-4 h-4"/>Productos
+                <Link to="/solicitudes" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-200 transition text-sm">
+                  <BadgePlus className="w-4 h-4"/>Solicitudes
                 </Link>
               </SidebarMenuItem>
           
