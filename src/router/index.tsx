@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "../components/layout/Layout";
 import Home from "../pages/Home";
-import SolicitudesPage from "../pages/Solicitudes"
+import Solicidudes from "../pages/Solicitudes"
 import Settings from "../pages/Settings";
 import CrearSolicitud from "@/components/CrearSolicitud";
 import { ProductList } from "@/pages/ProductList";
@@ -26,10 +26,10 @@ export default function AppRouter() {
           }
         >
           <Route index element={<Home />} />
-          <Route path="solicitudes" element={<SolicitudesPage />} />
+          <Route path="solicitudes" element={<Solicidudes />} />
           <Route path="crearSolicitud" element={<CrearSolicitud />} />
           <Route path="settings" element={<Settings />} />
-          <Route path="pructList" element={<ProductList />} />
+          <Route path="productList" element={<ProductList />} />
           <Route path="createProduct" element={<CreateProduct />} />
         </Route>
       </Routes>

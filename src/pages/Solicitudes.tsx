@@ -1,68 +1,83 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useNavigate } from "react-router-dom"
+import { Button } from "@/components/ui/button"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table"
+import { useProductStore } from "@/store/productStore"
+import { useState } from "react"
 
-export default function SolicitudesPage() {
-  const [solicitudesActivas, setSolicitudesActivas] = useState([]);
-  const [solicitudesFinalizadas, setSolicitudesFinalizadas] = useState([]);
+// Tipo de solicitud (mock mientras no hay backend)
+interface Solicitud {
+  id: string
+  nombre: string
+  tiendas: number
+  productos: { nombre: string; cantidad: number }[]
+  preguntas: string[]
+  estatus: "Pendiente" | "En progreso" | "Completada"
+}
 
-  useEffect(() => {
-    // Simulación de carga de solicitudes desde API
-    setSolicitudesActivas([
-      { id: 1, etiqueta: "Ruta 1", pago: 200, tiendas: ["Tienda A", "Tienda B"] },
-      { id: 2, etiqueta: "Ruta 2", pago: 150, tiendas: ["Tienda C"] },
-    ]);
-    setSolicitudesFinalizadas([
-      { id: 3, etiqueta: "Descuento Octubre", pago: 100, tiendas: ["Tienda D", "Tienda E"] },
-    ]);
-  }, []);
+export default function CrearSolicitud() {
+  const navigate = useNavigate()
+  const productos = useProductStore((state) => state.products)
+
+  const [solicitudes] = useState<Solicitud[]>([
+    {
+      id: "1",
+      nombre: "Solicitud de Ejemplo",
+      tiendas: 3,
+      productos: [
+        { nombre: "Producto A", cantidad: 1 },
+        { nombre: "Producto B", cantidad: 2 }
+      ],
+      preguntas: ["¿Producto limpio?", "¿Fecha de expiración visible?"],
+      estatus: "Pendiente"
+    }
+  ])
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Solicitudes</h1>
-      
-      <Tabs defaultValue="activas" className="w-full">
-        <TabsList>
-          <TabsTrigger value="activas">Solicitudes Activas</TabsTrigger>
-          <TabsTrigger value="finalizadas">Solicitudes Finalizadas</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="activas" className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-          {solicitudesActivas.length > 0 ? (
-            solicitudesActivas.map((solicitud) => (
-              <Card key={solicitud.id}>
-                <CardHeader>
-                  <CardTitle>{solicitud.etiqueta}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p><strong>Pago:</strong> ${solicitud.pago}</p>
-                  <p><strong>Tiendas:</strong> {solicitud.tiendas.join(", ")}</p>
-                </CardContent>
-              </Card>
-            ))
-          ) : (
-            <p>No hay solicitudes activas.</p>
-          )}
-        </TabsContent>
-        
-        <TabsContent value="finalizadas" className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-          {solicitudesFinalizadas.length > 0 ? (
-            solicitudesFinalizadas.map((solicitud) => (
-              <Card key={solicitud.id}>
-                <CardHeader>
-                  <CardTitle>{solicitud.etiqueta}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p><strong>Pago:</strong> ${solicitud.pago}</p>
-                  <p><strong>Tiendas:</strong> {solicitud.tiendas.join(", ")}</p>
-                </CardContent>
-              </Card>
-            ))
-          ) : (
-            <p>No hay solicitudes finalizadas.</p>
-          )}
-        </TabsContent>
-      </Tabs>
+    <div className="p-4">
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">Solicitudes</h1>
+        <Button onClick={() => navigate("/crearSolicitud")}>
+          Crear nueva solicitud
+        </Button>
+      </div>
+
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Nombre</TableHead>
+            <TableHead>Cant. Tiendas</TableHead>
+            <TableHead>Productos</TableHead>
+            <TableHead>Preguntas</TableHead>
+            <TableHead>Estatus</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {solicitudes.map((solicitud) => (
+            <TableRow
+              key={solicitud.id}
+              className="cursor-pointer hover:bg-muted"
+              onClick={() => navigate(`/detalle-solicitud/${solicitud.id}`)}
+            >
+              <TableCell>{solicitud.nombre}</TableCell>
+              <TableCell>{solicitud.tiendas}</TableCell>
+              <TableCell>
+                {solicitud.productos
+                  .map((p) => `${p.nombre} (${p.cantidad})`)
+                  .join(", ")}
+              </TableCell>
+              <TableCell>{solicitud.preguntas.join(", ")}</TableCell>
+              <TableCell>{solicitud.estatus}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
-  );
+  )
 }
