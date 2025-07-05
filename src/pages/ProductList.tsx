@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { useNavigate } from "react-router-dom"
 
-export const ProductList = () => {
+export default function ProductList() {
   const { products } = useProductStore()
   const navigate = useNavigate()
 

@@ -1,7 +1,17 @@
-import { Navigate } from "react-router-dom"
-import { useAuthStore } from "@/store/authStore"
+import { Navigate } from "react-router-dom";
+import { useAuthStore } from "@/store/authStore";
+import { ReactNode } from "react";
 
-export const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />
+interface Props {
+  children: ReactNode;
+}
+
+export default function PrivateRoute({ children }: Props) {
+  const token = useAuthStore((state) => state.token);
+
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
 }
