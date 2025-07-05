@@ -1,13 +1,13 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Layout from "../components/layout/Layout";
-import Home from "../pages/Home";
-import Solicidudes from "../pages/Solicitudes"
-import Settings from "../pages/Settings";
+import Layout from "@/components/layout/Layout";
+import Home from "@/pages/Home";
+import Solicitudes from "@/pages/Solicitudes";
+import Settings from "@/pages/Settings";
 import CrearSolicitud from "@/components/CrearSolicitud";
-import { ProductList } from "@/pages/ProductList";
-import { CreateProduct } from "@/components/CreateProduct"
-import { PrivateRoute } from "@/components/PrivateRoute"
-import { Login } from "@/pages/Login"
+import ProductList from "@/pages/ProductList";
+import CreateProduct from "@/components/CreateProduct";
+import PrivateRoute from "@/components/PrivateRoute";
+import Login from "@/pages/Login";
 
 export default function AppRouter() {
   return (
@@ -16,7 +16,7 @@ export default function AppRouter() {
         {/* Ruta pública */}
         <Route path="/login" element={<Login />} />
 
-        {/* Rutas protegidas dentro del layout */}
+        {/* Rutas privadas, protegidas por PrivateRoute */}
         <Route
           path="/"
           element={
@@ -26,7 +26,7 @@ export default function AppRouter() {
           }
         >
           <Route index element={<Home />} />
-          <Route path="solicitudes" element={<Solicidudes />} />
+          <Route path="solicitudes" element={<Solicitudes />} />
           <Route path="crearSolicitud" element={<CrearSolicitud />} />
           <Route path="settings" element={<Settings />} />
           <Route path="productList" element={<ProductList />} />

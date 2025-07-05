@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { useNavigate } from 'react-router-dom'
 import { Trash2 } from 'lucide-react'
 
-export const CreateProduct = () => {
+export default function CreateProduct() {
   const {
     name,
     description,
