@@ -1,85 +1,68 @@
-import { create } from 'zustand'
+import { create } from "zustand";
+import { getAllProducts, createProduct } from "../Fetch/products";
+import { useAuthStore } from "./authStore";
 
-// Tipos
-export interface Product {
-  id: string
-  name: string
-  description: string
-  images: File[]
+interface Product {
+  id_producto: number;
+  vc_nombre: string;
+  vc_descripcion: string;
+  vc_image_url: string; // imagen para despues usar servidor de imagenes
+  id_negocio: number;
 }
 
 interface ProductState {
-  products: Product[]
-
-  name: string
-  description: string
-  images: File[]
-
-  setName: (name: string) => void
-  setDescription: (desc: string) => void
-  addImage: (file: File) => void
-  removeImage: (index: number) => void
-
-  addProduct: () => void
-  resetForm: () => void
-}
-
-// LocalStorage helpers
-const STORAGE_KEY = 'products'
-
-const loadProductsFromStorage = (): Product[] => {
-  const raw = localStorage.getItem(STORAGE_KEY)
-  if (!raw) return []
-  try {
-    return JSON.parse(raw)
-  } catch {
-    return []
-  }
-}
-
-const saveProductsToStorage = (products: Product[]) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(products))
+  name: string;
+  description: string;
+  products: Product[];
+  setName: (name: string) => void;
+  setDescription: (description: string) => void;
+  addProduct: () => Promise<void>;
+  fetchProducts: () => Promise<void>;
 }
 
 export const useProductStore = create<ProductState>((set, get) => ({
-  products: loadProductsFromStorage(),
-
-  name: '',
-  description: '',
-  images: [],
-
+  name: "",
+  description: "",
+  products: [],
   setName: (name) => set({ name }),
-  setDescription: (desc) => set({ description: desc }),
-
-  addImage: (file) => {
-    const { images } = get()
-    if (images.length >= 3) return
-    set({ images: [...images, file] })
-  },
-
-  removeImage: (index) => {
-    const { images } = get()
-    const newImages = images.filter((_, i) => i !== index)
-    set({ images: newImages })
-  },
-
-  addProduct: () => {
-    const { name, description, images, products } = get()
-    const newProduct: Product = {
-      id: crypto.randomUUID(),
-      name,
-      description,
-      images
+  setDescription: (description) => set({ description }),
+  fetchProducts: async () => {
+    try {
+      const id_negocio = useAuthStore.getState().idNegocio;
+      const token = useAuthStore.getState().token;
+  
+      if (!id_negocio || !token) {
+        throw new Error("Faltan datos de autenticación");
+      }
+  
+      const response = await getAllProducts();
+      if (response.ok) {
+        set({ products: response.data });
+      }
+    } catch (e) {
+      console.error("Error al obtener productos", e);
     }
-
-    const updatedProducts = [...products, newProduct]
-    set({ products: updatedProducts })
-    saveProductsToStorage(updatedProducts)
-    get().resetForm()
-  },
-
-  resetForm: () => {
-    set({ name: '', description: '', images: [] })
   },
   
-}))
+  
+  addProduct: async () => {
+    const { name, description } = get();
+    const id_negocio = useAuthStore.getState().idNegocio;
+    const token = useAuthStore.getState().token;
+  
+    if (!id_negocio || !token) {
+      throw new Error("Faltan datos de autenticación");
+    }
+  
+    await createProduct(name, description, id_negocio, token);
+  
+    // recargar productos
+    await get().fetchProducts(id_negocio);
+  
+    // limpiar campos
+    set({ name: "", description: "" });
+  },
+  
+}));
+
+

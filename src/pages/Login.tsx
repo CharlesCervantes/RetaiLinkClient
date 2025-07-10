@@ -1,13 +1,15 @@
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 import { useState } from "react";
-import { loginUser } from "@/lib/api";
+import { loginUser } from "../Fetch/login";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import logo from '../assets/promotorialogotipo_positivo.png'
+import background from '../assets/patron3_ppt.png'
 
 export default function Login() {
   const navigate = useNavigate();
-  const authStore = useAuthStore();
+  const authstore = useAuthStore();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -15,18 +17,25 @@ export default function Login() {
     if (!username || !password) return;
     try {
       const response = await loginUser(username, password);
-      authStore.login(response.data.user, response.data.token);
+      console.log("LOGIN RESPONSE", response)
+      authstore.login(response.data.token, response.data.user);
       navigate("/");
     } catch (error) {
       console.error(error);
       alert("Usuario o contraseña incorrectos");
     }
   };
+  
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div 
+      className="min-h-screen flex items-center justify-center bg-gray-50"
+      style={{backgroundImage: `url(${background})` }}
+    >
       <div className="w-full max-w-sm space-y-6 p-6 bg-white shadow rounded">
-        <h1 className="text-xl font-bold text-center">Iniciar sesión</h1>
+        <div className="flex items-center justify-center">
+          <img src={logo} alt="Logo" className="h-28" />
+        </div>
         <Input
           type="text"
           placeholder="Usuario"

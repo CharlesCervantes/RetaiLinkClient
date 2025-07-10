@@ -9,10 +9,16 @@ import {
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { useNavigate } from "react-router-dom"
+import { useEffect } from "react"
 
 export default function ProductList() {
-  const { products } = useProductStore()
+  const { products, fetchProducts } = useProductStore()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    fetchProducts()
+  }, [fetchProducts]);
+  
 
   return (
     <div className="w-full px-6 py-6">
@@ -33,29 +39,25 @@ export default function ProductList() {
             <TableRow>
               <TableHead>Nombre</TableHead>
               <TableHead>Descripción</TableHead>
-              <TableHead>Imágenes</TableHead>
+              <TableHead>Imagen</TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
             {products.map((p) => (
-              <TableRow key={p.id}>
-                <TableCell>{p.name}</TableCell>
-                <TableCell>{p.description}</TableCell>
+              <TableRow key={p.id_producto}>
+                <TableCell>{p.vc_nombre}</TableCell>
+                <TableCell>{p.vc_descripcion}</TableCell>
                 <TableCell>
-                  <div className="flex gap-2">
-                  {Array.isArray(p.images) &&
-                    p.images.map((img, i) =>
-                      img instanceof File ? (
-                        <img
-                          key={i}
-                          src={URL.createObjectURL(img)}
-                          alt={`img-${i}`}
-                          className="w-16 h-16 object-cover rounded border"
-                        />
-                      ) : null
-                    )}
-                  </div>
+                  {p.vc_image_url ? (
+                    <img
+                      src={p.vc_image_url}
+                      alt={p.vc_nombre}
+                      className="w-16 h-16 object-cover rounded border"
+                    />
+                  ) : (
+                    <span className="text-muted-foreground text-xs">Sin imagen</span>
+                  )}
                 </TableCell>
               </TableRow>
             ))}
