@@ -1,12 +1,12 @@
-import { useProductStore } from "@/store/productStore"
-import { useSolicitudStore } from "@/store/solicitudes"
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { toast } from "sonner"
-import { Trash2 } from "lucide-react"
-import { useNavigate } from "react-router-dom"
+import { useSolicitudStore } from "../store/solicitudes";
+import { useProductStore } from "../store/productStore";
+import { Separator } from "../components/ui/separator";
+import { Button } from "../components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { Card } from "../components/ui/card";
+import { Trash2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
 interface Pregunta {
   id: string

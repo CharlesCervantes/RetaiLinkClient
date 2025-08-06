@@ -1,6 +1,6 @@
-import { create } from "zustand";
 import { getAllProducts, createProduct } from "../Fetch/products";
 import { useAuthStore } from "./authStore";
+import { create } from "zustand";
 
 interface Product {
   id_producto: number;

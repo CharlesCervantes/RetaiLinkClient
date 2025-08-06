@@ -1,5 +1,5 @@
+import { useAuthStore } from "../store/authStore";
 import { Navigate } from "react-router-dom";
-import { useAuthStore } from "@/store/authStore";
 import { ReactNode } from "react";
 
 interface Props {

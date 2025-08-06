@@ -1,7 +1,7 @@
-import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem } from "@/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem } from "../../components/ui/sidebar";
+import logo from '../../assets/promotorialogotipo_positivo.png';
 import { Home, BadgePlus, FormInputIcon } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import logo from '../../assets/promotorialogotipo_positivo.png'
 import LogoutButton from "../LogoutButton";
 
 export default function AppSidebar() {
