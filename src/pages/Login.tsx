@@ -1,11 +1,11 @@
+import logo from '../assets/promotorialogotipo_positivo.png';
+import background from '../assets/patron3_ppt.png';
+import { useAuthStore } from "../store/authStore";
+import { Button } from "../components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "@/store/authStore";
-import { useState } from "react";
+import { Input } from "../components/ui/input";
 import { loginUser } from "../Fetch/login";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import logo from '../assets/promotorialogotipo_positivo.png'
-import background from '../assets/patron3_ppt.png'
+import { useState } from "react";
 
 export default function Login() {
   const navigate = useNavigate();

@@ -1,4 +1,7 @@
-import { useProductStore } from "@/store/productStore"
+import { useProductStore } from "../store/productStore";
+import { Button } from "../components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -6,10 +9,7 @@ import {
   TableHead,
   TableHeader,
   TableRow
-} from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { useNavigate } from "react-router-dom"
-import { useEffect } from "react"
+} from "../components/ui/table";
 
 export default function ProductList() {
   const { products, fetchProducts } = useProductStore()

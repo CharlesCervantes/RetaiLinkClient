@@ -1,13 +1,13 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Layout from "@/components/layout/Layout";
-import Home from "@/pages/Home";
-import Solicitudes from "@/pages/Solicitudes";
-import Settings from "@/pages/Settings";
-import CrearSolicitud from "@/components/CrearSolicitud";
-import ProductList from "@/pages/ProductList";
-import CreateProduct from "@/components/CreateProduct";
-import PrivateRoute from "@/components/PrivateRoute";
-import Login from "@/pages/Login";
+import CrearSolicitud from "../components/CrearSolicitud";
+import CreateProduct from "../components/CreateProduct";
+import PrivateRoute from "../components/PrivateRoute";
+import Layout from "../components/layout/Layout";
+import Solicitudes from "../pages/Solicitudes";
+import ProductList from "../pages/ProductList";
+import Settings from "../pages/Settings";
+import Login from "../pages/Login";
+import Home from "../pages/Home";
 
 export default function AppRouter() {
   return (

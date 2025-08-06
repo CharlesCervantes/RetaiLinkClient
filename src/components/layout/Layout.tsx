@@ -1,7 +1,7 @@
-import { SidebarProvider } from "@/components/ui/sidebar"
-import { Outlet } from "react-router-dom"
-import Sidebar from "./Sidebar"
-import { Toaster } from "../toaster"
+import { SidebarProvider } from "../../components/ui/sidebar";
+import { Outlet } from "react-router-dom";
+import { Toaster } from "../toaster";
+import Sidebar from "./Sidebar";
 
 export default function Layout() {
   return (

@@ -1,5 +1,5 @@
-const API_URL = import.meta.env.VITE_API_URL;
 import { useAuthStore } from "../store/authStore";
+const API_URL = import.meta.env.VITE_API_URL;
 
 export const getAllProducts = async () => {
     const token = useAuthStore.getState().token;
