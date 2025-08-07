@@ -9,20 +9,21 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 interface Pregunta {
-  id: string
+  id: number
   texto: string
   precio: number
 }
 
 const mockPreguntas: Pregunta[] = [
-  { id: "1", texto: "¿Producto limpio?", precio: 0 },
-  { id: "2", texto: "¿Fecha de expiración visible?", precio: 10 },
-  { id: "3", texto: "¿Etiqueta visible?", precio: 5 }
+  { id: 1, texto: "¿Producto limpio?", precio: 0 },
+  { id: 2, texto: "¿Fecha de expiración visible?", precio: 10 },
+  { id: 3, texto: "¿Etiqueta visible?", precio: 5 }
 ]
 
 export default function CrearSolicitud() {
   const navigate = useNavigate()
-  const catalogo = useProductStore((state) => state.products)
+  const { products } = useProductStore()
+
   const {
     agregarProducto,
     eliminarProducto,
@@ -32,14 +33,12 @@ export default function CrearSolicitud() {
   } = useSolicitudStore()
 
   const [paso, setPaso] = useState(0)
-  const [productoActual, setProductoActual] = useState<typeof catalogo[0] | null>(null)
+  const [productoActual, setProductoActual] = useState<typeof products[0] | null>(null)
   const [preguntasSeleccionadas, setPreguntasSeleccionadas] = useState<Pregunta[]>([])
 
-  const productosDisponibles = catalogo.filter(
-    (p) => !productos.some((prod) => prod.id === p.id)
-  )
+  // const productosDisponibles = products.filter((p) => !productos.some((prod) => prod.id_ === p.id_producto));
 
-  const handleSeleccionarProducto = (producto: typeof catalogo[0]) => {
+  const handleSeleccionarProducto = (producto: typeof products[0]) => {
     setProductoActual(producto)
     setPreguntasSeleccionadas([])
   }
@@ -51,7 +50,7 @@ export default function CrearSolicitud() {
     } else {
       const gratisYaTomada = preguntasSeleccionadas.some((p) => p.precio === 0)
       if (pregunta.precio === 0 && gratisYaTomada) {
-        toast({ title: "Solo puedes seleccionar una pregunta gratuita" })
+        toast("Solo puedes seleccionar una pregunta gratuita")
         return
       }
       setPreguntasSeleccionadas([...preguntasSeleccionadas, pregunta])
@@ -61,12 +60,12 @@ export default function CrearSolicitud() {
   const handleConfirmarProducto = () => {
     if (!productoActual) return
     if (preguntasSeleccionadas.length === 0) {
-      toast({ title: "Debes seleccionar al menos una pregunta" })
+      toast("Debes seleccionar al menos una pregunta")
       return
     }
 
     agregarProducto({
-      id: productoActual.id,
+      id: productoActual.id_producto,
       nombre: productoActual.name,
       imagenes: productoActual.images.map((img) =>
         typeof img === "string" ? img : URL.createObjectURL(img)
