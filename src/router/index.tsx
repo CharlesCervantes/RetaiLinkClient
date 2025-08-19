@@ -8,6 +8,7 @@ import ProductList from "../pages/ProductList";
 import Settings from "../pages/Settings";
 import Login from "../pages/Login";
 import Home from "../pages/Home";
+import NegociosList from "../pages/Negocios";
 
 export default function AppRouter() {
   return (
@@ -31,6 +32,7 @@ export default function AppRouter() {
           <Route path="settings" element={<Settings />} />
           <Route path="productList" element={<ProductList />} />
           <Route path="createProduct" element={<CreateProduct />} />
+          <Route path="negocios" element={<NegociosList />} />
         </Route>
       </Routes>
     </BrowserRouter>
