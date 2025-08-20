@@ -6,5 +6,6 @@ export interface User {
     b_activo: boolean;
     dt_registro: number;
     dt_actualizacion: number;
+    i_rol: number;
   }
   

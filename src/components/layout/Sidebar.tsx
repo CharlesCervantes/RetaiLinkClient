@@ -1,13 +1,18 @@
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem } from "../../components/ui/sidebar";
 import logo from '../../assets/promotorialogotipo_positivo.png';
-import { Home, BadgePlus, FormInputIcon } from "lucide-react";
+import { Home, BadgePlus, FormInputIcon, FactoryIcon } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import LogoutButton from "../LogoutButton";
+import { useAuthStore } from "../../store/authStore";
 
 export default function AppSidebar() {
 
   const location = useLocation();
   const pathname = location.pathname;
+
+  const { user } = useAuthStore();
+
+  console.log("Current user in Sidebar:", user);
 
   const getActiveClass = (route: string) => 
     pathname === route
@@ -40,6 +45,13 @@ export default function AppSidebar() {
               <BadgePlus className="w-4 h-4" /> Solicitudes
             </Link>
           </SidebarMenuItem>
+          {user?.i_rol === 1 && (
+            <SidebarMenuItem asChild>
+              <Link to="/negocios" className={`flex items-center gap-3 p-3 rounded-lg transition text-sm ${getActiveClass("/negocios")}`}>
+                <FactoryIcon className="w-4 h-4" /> Negocios
+              </Link>
+            </SidebarMenuItem>
+          )}
         </SidebarMenu>
       </div>
         <LogoutButton/>
