@@ -9,6 +9,8 @@ import Settings from "../pages/Settings";
 import Login from "../pages/Login";
 import Home from "../pages/Home";
 import NegociosList from "../pages/Negocios";
+import NegocioDetalle from "../pages/NegocioDetalle";
+import UsuariosTabla from "../pages/UsuariosTabla";
 
 export default function AppRouter() {
   return (
@@ -33,6 +35,8 @@ export default function AppRouter() {
           <Route path="productList" element={<ProductList />} />
           <Route path="createProduct" element={<CreateProduct />} />
           <Route path="negocios" element={<NegociosList />} />
+          <Route path="negocios/:id" element={<NegocioDetalle />} />
+          <Route path="negocios/:id/usuarios" element={<UsuariosTabla />} />
         </Route>
       </Routes>
     </BrowserRouter>

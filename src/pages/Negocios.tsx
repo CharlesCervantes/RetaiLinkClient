@@ -3,6 +3,7 @@ import { getAllNegocios, createNegocio, updateNegocio, deleteNegocio, type Negoc
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
+import { useNavigate } from "react-router-dom";
 import {
     Dialog,
     DialogContent,
@@ -26,6 +27,7 @@ import {
 } from "../components/ui/alert-dialog";
 
 const NegociosList: React.FC = () => {
+    const navigate = useNavigate();
     const [data, setData] = useState<Negocio[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -82,6 +84,10 @@ const NegociosList: React.FC = () => {
         setEditing(n);
         setNombreEdit(n.vc_nombre);
         setOpenEdit(true);
+    };
+
+    const onViewNegocio = (negocio: Negocio) => {
+        navigate(`/negocios/${negocio.id_negocio}`, { state: { negocio } });
     };
 
     const onEdit = async () => {
@@ -163,7 +169,7 @@ const NegociosList: React.FC = () => {
                         <TableRow>
                             <TableHead>ID</TableHead>
                             <TableHead>Nombre</TableHead>
-                            <TableHead className="w-[160px]">Acciones</TableHead>
+                            <TableHead className="w-[200px]">Acciones</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -184,6 +190,9 @@ const NegociosList: React.FC = () => {
                                     <TableCell>{n.vc_nombre}</TableCell>
                                     <TableCell>
                                         <div className="flex items-center gap-2">
+                                            <Button variant="default" size="sm" onClick={() => onViewNegocio(n)}>
+                                                Ver
+                                            </Button>
                                             <Button variant="outline" size="sm" onClick={() => onStartEdit(n)}>
                                                 Editar
                                             </Button>

@@ -37,6 +37,19 @@ export const getAllNegocios = async (): Promise<ApiResponse<Negocio[]>> => {
   return res.json();
 };
 
+// GET: obtener un establecimiento por ID
+export const getNegocioById = async (id: number): Promise<ApiResponse<Negocio>> => {
+  const res = await fetch(
+    `${API_URL}/superadmin/get-negocio/${id}`,
+    {
+      method: "GET",
+      headers: authHeaders(),
+    }
+  );
+  if (!res.ok) throw new Error("Error al obtener el negocio");
+  return res.json();
+};
+
 // POST: crear establecimiento
 export const createNegocio = async (
   nombre: string
