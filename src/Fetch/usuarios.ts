@@ -5,7 +5,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 export interface Usuario {
   id_usuario: number;
   vc_nombre: string;
-  vc_email: string;
+  vc_username: string;
   vc_telefono?: string;
   b_activo?: boolean;
   dt_registro?: number;

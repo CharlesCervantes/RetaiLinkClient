@@ -9,10 +9,8 @@ export default function AppSidebar() {
 
   const location = useLocation();
   const pathname = location.pathname;
-
   const { user } = useAuthStore();
 
-  console.log("Current user in Sidebar:", user);
 
   const getActiveClass = (route: string) => 
     pathname === route

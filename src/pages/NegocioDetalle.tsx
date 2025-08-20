@@ -3,6 +3,7 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { type Negocio, getNegocioById } from "../Fetch/negocios";
+import { getUsersByBusiness, Usuario } from "../Fetch/usuarios";
 
 const NegocioDetalle: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -12,6 +13,10 @@ const NegocioDetalle: React.FC = () => {
     const [negocio, setNegocio] = useState<Negocio | undefined>(location.state?.negocio);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    const [mostrarUsuarios, setMostrarUsuarios] = useState(false);
+    const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+    const [cargandoUsuarios, setCargandoUsuarios] = useState(false);
 
     useEffect(() => {
         if (!negocio && id) {
@@ -90,13 +95,42 @@ const NegocioDetalle: React.FC = () => {
 
     const formatDate = (timestamp?: number) => {
         if (!timestamp) return "No disponible";
-        return new Date(timestamp).toLocaleDateString('es-ES', {
+        
+        console.log("Unix timestamp: ", timestamp);
+        
+        const date = new Date(timestamp * 1000);
+        return date.toLocaleDateString('es-ES', {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
             hour: '2-digit',
             minute: '2-digit'
         });
+    };
+
+    const cargarUsuarios = async () => {
+        if (mostrarUsuarios) {
+            setMostrarUsuarios(false);
+            return;
+        }
+
+        setCargandoUsuarios(true);
+        try {
+            const negocioId = parseInt(id || '0');
+            if (isNaN(negocioId)) {
+                throw new Error('ID del negocio no es válido');
+            }
+            
+            const res = await getUsersByBusiness(negocioId);
+            if (res.ok) {
+                setUsuarios(res.data);
+                setMostrarUsuarios(true);
+            }
+        } catch (error) {
+            console.error('Error al cargar usuarios:', error);
+        } finally {
+            setCargandoUsuarios(false);
+        }
     };
 
     return (
@@ -151,21 +185,26 @@ const NegocioDetalle: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                     <div className="flex gap-2">
-                        <Button 
+                        <Button
+                            variant="secondary"
+                            onClick={cargarUsuarios}
+                            disabled={cargandoUsuarios}
+                        >
+                            {cargandoUsuarios 
+                                ? 'Cargando...' 
+                                : mostrarUsuarios 
+                                    ? 'Ocultar Usuarios' 
+                                    : 'Ver Usuarios'
+                            }
+                        </Button>
+                        {/* <Button 
                             variant="outline" 
                             onClick={() => navigate('/negocios')}
                         >
                             Editar Negocio
-                        </Button>
-                        <Button 
-                            variant="secondary"
-                            onClick={() => navigate(`/negocios/${negocio.id_negocio}/usuarios`, { 
-                                state: { negocioNombre: negocio.vc_nombre } 
-                            })}
-                        >
-                            Ver Usuarios
-                        </Button>
-                        <Button 
+                        </Button> */}
+                        
+                        {/* <Button 
                             variant="secondary"
                             onClick={() => {
                                 // Aquí se puede agregar funcionalidad adicional como ver productos, empleados, etc.
@@ -173,10 +212,58 @@ const NegocioDetalle: React.FC = () => {
                             }}
                         >
                             Ver Productos
-                        </Button>
+                        </Button> */}
+                    </div>
+
+                    <div>
+                        {/* Mostrar la seccion seleccionada */}
                     </div>
                 </CardContent>
             </Card>
+
+            {/* Sección de Usuarios */}
+            {mostrarUsuarios && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Usuarios del Negocio: {negocio.vc_nombre}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {usuarios.length === 0 ? (
+                            <p className="text-muted-foreground">No hay usuarios registrados para este negocio.</p>
+                        ) : (
+                            <div className="space-y-4">
+                                {usuarios.map((usuario, index) => (
+                                    <div key={usuario.id_usuario || index} className="border rounded-lg p-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div>
+                                                <label className="text-sm font-medium text-muted-foreground">Nombre</label>
+                                                <p className="text-base">{usuario.vc_nombre || 'No disponible'}</p>
+                                            </div>
+                                            <div>
+                                                <label className="text-sm font-medium text-muted-foreground">Email</label>
+                                                <p className="text-base">{usuario.vc_username || 'No disponible'}</p>
+                                            </div>
+                                            <div>
+                                                <label className="text-sm font-medium text-muted-foreground">Estado</label>
+                                                <p className="text-base">
+                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                                        usuario.b_activo !== false
+                                                            ? 'bg-green-100 text-green-800'
+                                                            : 'bg-red-100 text-red-800'
+                                                    }`}>
+                                                        {usuario.b_activo !== false ? 'Activo' : 'Inactivo'}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+            )}
+
         </div>
     );
 };

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { getUsersByBusiness, type Usuario } from "../fetch/usuarios";
+import { getUsersByBusiness, type Usuario } from "../Fetch/usuarios";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -46,7 +46,7 @@ const UsuariosTabla: React.FC = () => {
         if (!f) return usuarios;
         return usuarios.filter((u) => 
             u.vc_nombre.toLowerCase().includes(f) ||
-            u.vc_email.toLowerCase().includes(f) ||
+            u.vc_username.toLowerCase().includes(f) ||
             (u.vc_telefono && u.vc_telefono.toLowerCase().includes(f))
         );
     }, [usuarios, filter]);
@@ -120,7 +120,7 @@ const UsuariosTabla: React.FC = () => {
                                 <TableRow key={usuario.id_usuario}>
                                     <TableCell className="font-medium">{usuario.id_usuario}</TableCell>
                                     <TableCell>{usuario.vc_nombre}</TableCell>
-                                    <TableCell>{usuario.vc_email}</TableCell>
+                                    <TableCell>{usuario.vc_username}</TableCell>
                                     <TableCell>{usuario.vc_telefono || "No disponible"}</TableCell>
                                     <TableCell>
                                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
