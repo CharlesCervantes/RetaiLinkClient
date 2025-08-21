@@ -6,11 +6,13 @@ export interface Usuario {
   id_usuario: number;
   vc_nombre: string;
   vc_username: string;
+  vc_password?: string;
   vc_telefono?: string;
   b_activo?: boolean;
   dt_registro?: number;
   dt_actualizacion?: number;
   id_negocio: number;
+  i_rol?: number;
 }
 
 type ApiResponse<T> = {
@@ -35,6 +37,20 @@ export const getUsersByBusiness = async (id_negocio: number): Promise<ApiRespons
       method: "POST",
       headers: authHeaders(),
       body: JSON.stringify({ id_negocio }),
+    }
+  );
+  if (!res.ok) throw new Error("Error al obtener usuarios del negocio");
+  return res.json();
+};
+
+// POST: registrar usuario por negocio
+export const registerUserByBuisness = async (User: Usuario): Promise<ApiResponse<Usuario>> => {
+  const res = await fetch(
+    `${API_URL}/admin/register-user-by-buisness`,
+    {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify(User),
     }
   );
   if (!res.ok) throw new Error("Error al obtener usuarios del negocio");

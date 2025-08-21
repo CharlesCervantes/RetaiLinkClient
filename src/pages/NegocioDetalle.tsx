@@ -2,8 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Checkbox } from "../components/ui/checkbox";
 import { type Negocio, getNegocioById } from "../Fetch/negocios";
-import { getUsersByBusiness, Usuario } from "../Fetch/usuarios";
+import { getUsersByBusiness, Usuario, registerUserByBuisness } from "../Fetch/usuarios";
+import { generatePassword, validateEmail, validateMexicanPhone } from "../utils/passwordGenerator";
 
 const NegocioDetalle: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -17,6 +22,16 @@ const NegocioDetalle: React.FC = () => {
     const [mostrarUsuarios, setMostrarUsuarios] = useState(false);
     const [usuarios, setUsuarios] = useState<Usuario[]>([]);
     const [cargandoUsuarios, setCargandoUsuarios] = useState(false);
+    
+    const [modalOpen, setModalOpen] = useState(false);
+    const [isEmail, setIsEmail] = useState(true);
+    const [formData, setFormData] = useState({
+        vc_nombre: '',
+        vc_username: '',
+        vc_password: ''
+    });
+    const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         if (!negocio && id) {
@@ -133,6 +148,75 @@ const NegocioDetalle: React.FC = () => {
         }
     };
 
+    const resetForm = () => {
+        setFormData({
+            vc_nombre: '',
+            vc_username: '',
+            vc_password: ''
+        });
+        setFormErrors({});
+        setIsEmail(true);
+    };
+
+    const validateForm = () => {
+        const errors: Record<string, string> = {};
+
+        if (!formData.vc_nombre.trim()) {
+            errors.vc_nombre = 'El nombre es requerido';
+        }
+
+        if (!formData.vc_username.trim()) {
+            errors.vc_username = isEmail ? 'El email es requerido' : 'El teléfono es requerido';
+        } else {
+            if (isEmail && !validateEmail(formData.vc_username)) {
+                errors.vc_username = 'El formato del email no es válido';
+            } else if (!isEmail && !validateMexicanPhone(formData.vc_username)) {
+                errors.vc_username = 'El teléfono debe tener exactamente 10 dígitos';
+            }
+        }
+
+        if (!formData.vc_password) {
+            errors.vc_password = 'Debe generar una contraseña';
+        }
+
+        return errors;
+    };
+
+    const handleSubmitUser = async (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        const errors = validateForm();
+        if (Object.keys(errors).length > 0) {
+            setFormErrors(errors);
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            const negocioId = parseInt(id || '0');
+            const newUser: Usuario = {
+                id_usuario: 0,
+                vc_nombre: formData.vc_nombre,
+                vc_username: formData.vc_username,
+                vc_password: formData.vc_password,
+                id_negocio: negocioId,
+                i_rol: 2
+            };
+
+            const res = await registerUserByBuisness(newUser);
+            if (res.ok) {
+                setModalOpen(false);
+                resetForm();
+                cargarUsuarios();
+            }
+        } catch (error) {
+            console.error('Error al crear usuario:', error);
+            setFormErrors({ general: 'Error al crear el usuario. Intente nuevamente.' });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -228,6 +312,97 @@ const NegocioDetalle: React.FC = () => {
                         <CardTitle>Usuarios del Negocio: {negocio.vc_nombre}</CardTitle>
                     </CardHeader>
                     <CardContent>
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-semibold">Lista de Usuarios</h3>
+                            <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+                                <DialogTrigger asChild>
+                                    <Button>Crear Usuario</Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[425px]">
+                                    <DialogHeader>
+                                        <DialogTitle>Crear Nuevo Usuario</DialogTitle>
+                                    </DialogHeader>
+                                    <form onSubmit={handleSubmitUser} className="space-y-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="nombre">Nombre Completo</Label>
+                                            <Input
+                                                id="nombre"
+                                                value={formData.vc_nombre}
+                                                onChange={(e) => setFormData({...formData, vc_nombre: e.target.value})}
+                                                placeholder="Ingrese el nombre completo"
+                                            />
+                                            {formErrors.vc_nombre && (
+                                                <p className="text-sm text-red-600">{formErrors.vc_nombre}</p>
+                                            )}
+                                        </div>
+                                        
+                                        <div className="space-y-2">
+                                            <div className="flex items-center space-x-2">
+                                                <Checkbox
+                                                    id="isEmail"
+                                                    checked={isEmail}
+                                                    onCheckedChange={(checked) => {
+                                                        setIsEmail(checked as boolean);
+                                                        setFormData({...formData, vc_username: ''});
+                                                        setFormErrors({...formErrors, vc_username: ''});
+                                                    }}
+                                                />
+                                                <Label htmlFor="isEmail">Usar Email como username</Label>
+                                            </div>
+                                            <Label htmlFor="username">
+                                                {isEmail ? 'Email' : 'Teléfono (10 dígitos)'}
+                                            </Label>
+                                            <Input
+                                                id="username"
+                                                type={isEmail ? 'email' : 'tel'}
+                                                value={formData.vc_username}
+                                                onChange={(e) => setFormData({...formData, vc_username: e.target.value})}
+                                                placeholder={isEmail ? 'ejemplo@correo.com' : '1234567890'}
+                                            />
+                                            {formErrors.vc_username && (
+                                                <p className="text-sm text-red-600">{formErrors.vc_username}</p>
+                                            )}
+                                        </div>
+                                        
+                                        <div className="space-y-2">
+                                            <Label htmlFor="password">Contraseña (generada automáticamente)</Label>
+                                            <div className="flex space-x-2">
+                                                <Input
+                                                    id="password"
+                                                    value={formData.vc_password}
+                                                    readOnly
+                                                    placeholder="Click en generar para crear contraseña"
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    onClick={() => setFormData({...formData, vc_password: generatePassword()})}
+                                                >
+                                                    Generar
+                                                </Button>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="flex justify-end space-x-2">
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={() => {
+                                                    setModalOpen(false);
+                                                    resetForm();
+                                                }}
+                                            >
+                                                Cancelar
+                                            </Button>
+                                            <Button type="submit" disabled={isSubmitting}>
+                                                {isSubmitting ? 'Creando...' : 'Crear Usuario'}
+                                            </Button>
+                                        </div>
+                                    </form>
+                                </DialogContent>
+                            </Dialog>
+                        </div>
+                        
                         {usuarios.length === 0 ? (
                             <p className="text-muted-foreground">No hay usuarios registrados para este negocio.</p>
                         ) : (
