@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../components/ui/dialog";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Checkbox } from "../components/ui/checkbox";
+import { PageHeader } from "../components/ui/page-header";
+import { InfoCard } from "../components/ui/info-card";
+import { ActionCard } from "../components/ui/action-card";
+import { UserList } from "../components/ui/user-list";
+import { StatusBadge } from "../components/ui/status-badge";
+import { LoadingButton } from "../components/ui/loading-button";
 import { type Negocio, getNegocioById } from "../Fetch/negocios";
 import { getUsersByBusiness, Usuario, registerUserByBuisness } from "../Fetch/usuarios";
 import { generatePassword, validateEmail, validateMexicanPhone } from "../utils/passwordGenerator";
@@ -56,54 +61,75 @@ const NegocioDetalle: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-semibold">Detalle del Negocio</h2>
-                    <Button variant="outline" onClick={() => navigate('/negocios')}>
-                        Volver
-                    </Button>
-                </div>
-                <Card>
-                    <CardContent className="p-6">
-                        <p className="text-muted-foreground">Cargando...</p>
-                    </CardContent>
-                </Card>
+            <div className="space-y-6">
+                <PageHeader
+                    title="Detalle del Negocio"
+                    loading={true}
+                    actions={[
+                        {
+                            label: "Volver a Negocios",
+                            onClick: () => navigate('/negocios'),
+                            variant: "outline"
+                        }
+                    ]}
+                />
+                <InfoCard
+                    title="Información del Negocio"
+                    items={[]}
+                    loading={true}
+                />
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-semibold">Detalle del Negocio</h2>
-                    <Button variant="outline" onClick={() => navigate('/negocios')}>
-                        Volver
-                    </Button>
-                </div>
-                <Card>
-                    <CardContent className="p-6">
-                        <p className="text-red-600">{error}</p>
-                    </CardContent>
-                </Card>
+            <div className="space-y-6">
+                <PageHeader
+                    title="Detalle del Negocio"
+                    actions={[
+                        {
+                            label: "Volver a Negocios",
+                            onClick: () => navigate('/negocios'),
+                            variant: "outline"
+                        }
+                    ]}
+                />
+                <InfoCard
+                    title="Error"
+                    items={[
+                        {
+                            label: "Mensaje",
+                            value: <span className="text-error">{error}</span>
+                        }
+                    ]}
+                />
             </div>
         );
     }
 
     if (!negocio) {
         return (
-            <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-semibold">Detalle del Negocio</h2>
-                    <Button variant="outline" onClick={() => navigate('/negocios')}>
-                        Volver
-                    </Button>
-                </div>
-                <Card>
-                    <CardContent className="p-6">
-                        <p className="text-muted-foreground">No se encontraron datos del negocio.</p>
-                    </CardContent>
-                </Card>
+            <div className="space-y-6">
+                <PageHeader
+                    title="Detalle del Negocio"
+                    actions={[
+                        {
+                            label: "Volver a Negocios",
+                            onClick: () => navigate('/negocios'),
+                            variant: "outline"
+                        }
+                    ]}
+                />
+                <InfoCard
+                    title="No encontrado"
+                    items={[
+                        {
+                            label: "Estado",
+                            value: "No se encontraron datos del negocio."
+                        }
+                    ]}
+                />
             </div>
         );
     }
@@ -217,227 +243,191 @@ const NegocioDetalle: React.FC = () => {
         }
     };
 
+    const createUserModal = (
+        <DialogContent className="sm:max-w-[425px] bg-card">
+            <DialogHeader>
+                <DialogTitle className="text-primary">Crear Nuevo Usuario</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSubmitUser} className="space-y-4">
+                <div className="space-y-2">
+                    <Label htmlFor="nombre" className="text-primary">Nombre Completo</Label>
+                    <Input
+                        id="nombre"
+                        value={formData.vc_nombre}
+                        onChange={(e) => setFormData({...formData, vc_nombre: e.target.value})}
+                        placeholder="Ingrese el nombre completo"
+                        className={`custom-input ${formErrors.vc_nombre ? 'error-input' : ''}`}
+                    />
+                    {formErrors.vc_nombre && (
+                        <p className="error-text">{formErrors.vc_nombre}</p>
+                    )}
+                </div>
+                
+                <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                        <Checkbox
+                            id="isEmail"
+                            checked={isEmail}
+                            onCheckedChange={(checked) => {
+                                setIsEmail(checked as boolean);
+                                setFormData({...formData, vc_username: ''});
+                                setFormErrors({...formErrors, vc_username: ''});
+                            }}
+                        />
+                        <Label htmlFor="isEmail" className="text-primary">Usar Email como username</Label>
+                    </div>
+                    <Label htmlFor="username" className="text-primary">
+                        {isEmail ? 'Email' : 'Teléfono (10 dígitos)'}
+                    </Label>
+                    <Input
+                        id="username"
+                        type={isEmail ? 'email' : 'tel'}
+                        value={formData.vc_username}
+                        onChange={(e) => setFormData({...formData, vc_username: e.target.value})}
+                        placeholder={isEmail ? 'ejemplo@correo.com' : '1234567890'}
+                        className={`custom-input ${formErrors.vc_username ? 'error-input' : ''}`}
+                    />
+                    {formErrors.vc_username && (
+                        <p className="error-text">{formErrors.vc_username}</p>
+                    )}
+                </div>
+                
+                <div className="space-y-2">
+                    <Label htmlFor="password" className="text-primary">Contraseña (generada automáticamente)</Label>
+                    <div className="flex space-x-2">
+                        <Input
+                            id="password"
+                            value={formData.vc_password}
+                            readOnly
+                            placeholder="Click en generar para crear contraseña"
+                            className="custom-input"
+                        />
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setFormData({...formData, vc_password: generatePassword()})}
+                            className="btn-outline"
+                        >
+                            Generar
+                        </Button>
+                    </div>
+                </div>
+                
+                <div className="flex justify-end space-x-2">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                            setModalOpen(false);
+                            resetForm();
+                        }}
+                        className="btn-secondary"
+                    >
+                        Cancelar
+                    </Button>
+                    <LoadingButton
+                        type="submit"
+                        loading={isSubmitting}
+                        loadingText="Creando..."
+                        className="btn-primary"
+                    >
+                        Crear Usuario
+                    </LoadingButton>
+                </div>
+            </form>
+        </DialogContent>
+    );
+
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold">Detalle del Negocio</h2>
-                <Button variant="outline" onClick={() => navigate('/negocios')}>
-                    Volver a Negocios
-                </Button>
-            </div>
+            <PageHeader
+                title={`Detalle: ${negocio.vc_nombre}`}
+                subtitle="Información completa del negocio y gestión de usuarios"
+                breadcrumbs={[
+                    { label: "Negocios", onClick: () => navigate('/negocios') },
+                    { label: negocio.vc_nombre }
+                ]}
+                actions={[
+                    {
+                        label: "Volver a Negocios",
+                        onClick: () => navigate('/negocios'),
+                        variant: "outline",
+                        icon: "←"
+                    }
+                ]}
+            />
 
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-xl">{negocio.vc_nombre}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="text-sm font-medium text-muted-foreground">ID del Negocio</label>
-                            <p className="text-lg">{negocio.id_negocio}</p>
-                        </div>
-                        
-                        <div>
-                            <label className="text-sm font-medium text-muted-foreground">Estado</label>
-                            <p className="text-lg">
-                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                    negocio.b_activo !== false 
-                                        ? 'bg-green-100 text-green-800' 
-                                        : 'bg-red-100 text-red-800'
-                                }`}>
-                                    {negocio.b_activo !== false ? 'Activo' : 'Inactivo'}
-                                </span>
-                            </p>
-                        </div>
+            <InfoCard
+                title="Información del Negocio"
+                subtitle="Datos principales y estado actual"
+                columns={4}
+                items={[
+                    {
+                        label: "ID del Negocio",
+                        value: negocio.id_negocio
+                    },
+                    {
+                        label: "Estado",
+                        value: <StatusBadge status={negocio.b_activo !== false ? 'active' : 'inactive'} />
+                    },
+                    {
+                        label: "Fecha de Registro",
+                        value: formatDate(negocio.dt_registro)
+                    },
+                    {
+                        label: "Última Actualización",
+                        value: formatDate(negocio.dt_actualizacion)
+                    }
+                ]}
+            />
 
-                        <div>
-                            <label className="text-sm font-medium text-muted-foreground">Fecha de Registro</label>
-                            <p className="text-lg">{formatDate(negocio.dt_registro)}</p>
-                        </div>
-
-                        <div>
-                            <label className="text-sm font-medium text-muted-foreground">Última Actualización</label>
-                            <p className="text-lg">{formatDate(negocio.dt_actualizacion)}</p>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle>Acciones</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="flex gap-2">
-                        <Button
-                            variant="secondary"
-                            onClick={cargarUsuarios}
-                            disabled={cargandoUsuarios}
-                        >
-                            {cargandoUsuarios 
-                                ? 'Cargando...' 
-                                : mostrarUsuarios 
-                                    ? 'Ocultar Usuarios' 
-                                    : 'Ver Usuarios'
-                            }
-                        </Button>
-                        {/* <Button 
-                            variant="outline" 
-                            onClick={() => navigate('/negocios')}
-                        >
-                            Editar Negocio
-                        </Button> */}
-                        
-                        {/* <Button 
-                            variant="secondary"
-                            onClick={() => {
-                                // Aquí se puede agregar funcionalidad adicional como ver productos, empleados, etc.
-                                console.log('Ver más detalles del negocio:', negocio.id_negocio);
-                            }}
-                        >
-                            Ver Productos
-                        </Button> */}
-                    </div>
-
-                    <div>
-                        {/* Mostrar la seccion seleccionada */}
-                    </div>
-                </CardContent>
-            </Card>
+            <ActionCard
+                title="Acciones Disponibles"
+                subtitle="Gestiona los diferentes aspectos del negocio"
+                layout="grid"
+                actions={[
+                    {
+                        label: mostrarUsuarios ? 'Ocultar Usuarios' : 'Ver Usuarios',
+                        onClick: cargarUsuarios,
+                        loading: cargandoUsuarios,
+                        variant: 'secondary',
+                        icon: mostrarUsuarios ? "👥" : "👥",
+                        loadingText: 'Cargando usuarios...'
+                    }
+                ]}
+            />
 
             {/* Sección de Usuarios */}
             {mostrarUsuarios && (
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Usuarios del Negocio: {negocio.vc_nombre}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg font-semibold">Lista de Usuarios</h3>
-                            <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-                                <DialogTrigger asChild>
-                                    <Button>Crear Usuario</Button>
-                                </DialogTrigger>
-                                <DialogContent className="sm:max-w-[425px]">
-                                    <DialogHeader>
-                                        <DialogTitle>Crear Nuevo Usuario</DialogTitle>
-                                    </DialogHeader>
-                                    <form onSubmit={handleSubmitUser} className="space-y-4">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="nombre">Nombre Completo</Label>
-                                            <Input
-                                                id="nombre"
-                                                value={formData.vc_nombre}
-                                                onChange={(e) => setFormData({...formData, vc_nombre: e.target.value})}
-                                                placeholder="Ingrese el nombre completo"
-                                            />
-                                            {formErrors.vc_nombre && (
-                                                <p className="text-sm text-red-600">{formErrors.vc_nombre}</p>
-                                            )}
-                                        </div>
-                                        
-                                        <div className="space-y-2">
-                                            <div className="flex items-center space-x-2">
-                                                <Checkbox
-                                                    id="isEmail"
-                                                    checked={isEmail}
-                                                    onCheckedChange={(checked) => {
-                                                        setIsEmail(checked as boolean);
-                                                        setFormData({...formData, vc_username: ''});
-                                                        setFormErrors({...formErrors, vc_username: ''});
-                                                    }}
-                                                />
-                                                <Label htmlFor="isEmail">Usar Email como username</Label>
-                                            </div>
-                                            <Label htmlFor="username">
-                                                {isEmail ? 'Email' : 'Teléfono (10 dígitos)'}
-                                            </Label>
-                                            <Input
-                                                id="username"
-                                                type={isEmail ? 'email' : 'tel'}
-                                                value={formData.vc_username}
-                                                onChange={(e) => setFormData({...formData, vc_username: e.target.value})}
-                                                placeholder={isEmail ? 'ejemplo@correo.com' : '1234567890'}
-                                            />
-                                            {formErrors.vc_username && (
-                                                <p className="text-sm text-red-600">{formErrors.vc_username}</p>
-                                            )}
-                                        </div>
-                                        
-                                        <div className="space-y-2">
-                                            <Label htmlFor="password">Contraseña (generada automáticamente)</Label>
-                                            <div className="flex space-x-2">
-                                                <Input
-                                                    id="password"
-                                                    value={formData.vc_password}
-                                                    readOnly
-                                                    placeholder="Click en generar para crear contraseña"
-                                                />
-                                                <Button
-                                                    type="button"
-                                                    variant="outline"
-                                                    onClick={() => setFormData({...formData, vc_password: generatePassword()})}
-                                                >
-                                                    Generar
-                                                </Button>
-                                            </div>
-                                        </div>
-                                        
-                                        <div className="flex justify-end space-x-2">
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                onClick={() => {
-                                                    setModalOpen(false);
-                                                    resetForm();
-                                                }}
-                                            >
-                                                Cancelar
-                                            </Button>
-                                            <Button type="submit" disabled={isSubmitting}>
-                                                {isSubmitting ? 'Creando...' : 'Crear Usuario'}
-                                            </Button>
-                                        </div>
-                                    </form>
-                                </DialogContent>
-                            </Dialog>
-                        </div>
-                        
-                        {usuarios.length === 0 ? (
-                            <p className="text-muted-foreground">No hay usuarios registrados para este negocio.</p>
-                        ) : (
-                            <div className="space-y-4">
-                                {usuarios.map((usuario, index) => (
-                                    <div key={usuario.id_usuario || index} className="border rounded-lg p-4">
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                            <div>
-                                                <label className="text-sm font-medium text-muted-foreground">Nombre</label>
-                                                <p className="text-base">{usuario.vc_nombre || 'No disponible'}</p>
-                                            </div>
-                                            <div>
-                                                <label className="text-sm font-medium text-muted-foreground">Email</label>
-                                                <p className="text-base">{usuario.vc_username || 'No disponible'}</p>
-                                            </div>
-                                            <div>
-                                                <label className="text-sm font-medium text-muted-foreground">Estado</label>
-                                                <p className="text-base">
-                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                                        usuario.b_activo !== false
-                                                            ? 'bg-green-100 text-green-800'
-                                                            : 'bg-red-100 text-red-800'
-                                                    }`}>
-                                                        {usuario.b_activo !== false ? 'Activo' : 'Inactivo'}
-                                                    </span>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
+                <UserList
+                    title={`Usuarios del Negocio: ${negocio.vc_nombre}`}
+                    users={usuarios}
+                    loading={cargandoUsuarios && !mostrarUsuarios}
+                    onCreateUser={() => setModalOpen(true)}
+                    creatingUser={isSubmitting}
+                    emptyMessage={`No hay usuarios registrados para ${negocio.vc_nombre}.`}
+                    createUserModal={createUserModal}
+                    renderUserActions={(user) => (
+                        <>
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                    // Implementar editar usuario
+                                    console.log('Editar usuario:', user.id_usuario);
+                                }}
+                                className="btn-outline text-xs"
+                            >
+                                Editar
+                            </Button>
+                        </>
+                    )}
+                />
             )}
+
+            <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+                {createUserModal}
+            </Dialog>
 
         </div>
     );

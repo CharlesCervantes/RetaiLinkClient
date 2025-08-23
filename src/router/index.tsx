@@ -11,6 +11,7 @@ import Home from "../pages/Home";
 import NegociosList from "../pages/Negocios";
 import NegocioDetalle from "../pages/NegocioDetalle";
 import UsuariosTabla from "../pages/UsuariosTabla";
+import Establecimientos from "../pages/Establecimientos";
 
 export default function AppRouter() {
   return (
@@ -37,6 +38,7 @@ export default function AppRouter() {
           <Route path="negocios" element={<NegociosList />} />
           <Route path="negocios/:id" element={<NegocioDetalle />} />
           <Route path="negocios/:id/usuarios" element={<UsuariosTabla />} />
+          <Route path="establecimientos" element={<Establecimientos />} />
         </Route>
       </Routes>
     </BrowserRouter>
