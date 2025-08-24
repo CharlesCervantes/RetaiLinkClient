@@ -12,6 +12,7 @@ import NegociosList from "../pages/Negocios";
 import NegocioDetalle from "../pages/NegocioDetalle";
 import UsuariosTabla from "../pages/UsuariosTabla";
 import Establecimientos from "../pages/Establecimientos";
+import Preguntas from "../pages/PreguntasTabla";
 
 export default function AppRouter() {
   return (
@@ -39,6 +40,7 @@ export default function AppRouter() {
           <Route path="negocios/:id" element={<NegocioDetalle />} />
           <Route path="negocios/:id/usuarios" element={<UsuariosTabla />} />
           <Route path="establecimientos" element={<Establecimientos />} />
+          <Route path="preguntas" element={<Preguntas/>} />
         </Route>
       </Routes>
     </BrowserRouter>

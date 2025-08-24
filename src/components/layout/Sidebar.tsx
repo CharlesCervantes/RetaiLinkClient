@@ -1,6 +1,6 @@
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem } from "../../components/ui/sidebar";
 import logo from '../../assets/promotorialogotipo_positivo.png';
-import { Home, BadgePlus, FormInputIcon, FactoryIcon, Store } from "lucide-react";
+import { Home, BadgePlus, FormInputIcon, FactoryIcon, Store, FileQuestionIcon} from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import LogoutButton from "../LogoutButton";
 import { ThemeToggle } from "../ui/theme-toggle";
@@ -92,6 +92,15 @@ export default function AppSidebar() {
                   style={getActiveStyle("/establecimientos")}
                 >
                   <Store className="w-4 h-4" /> Establecimientos
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem asChild>
+                <Link 
+                  to="/preguntas" 
+                  className={`flex items-center gap-3 p-3 rounded-lg hover:bg-hover text-sm ${getActiveClass("/preguntas")}`}
+                  style={getActiveStyle("/preguntas")}
+                >
+                  <FileQuestionIcon className="w-4 h-4" /> Preguntas
                 </Link>
               </SidebarMenuItem>
             </>

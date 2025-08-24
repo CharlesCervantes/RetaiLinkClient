@@ -7,7 +7,8 @@
   /* Tema Claro */
   --light-bg: #ffffff;
   --light-text-primary: #000000;
-  --light-text-secondary: #444444;
+  /* --light-text-secondary: #444444; */
+  --light-text-secondary: #232323;
   --light-border: #eaeaea;
   --light-accent: var(--color-brand);
   --light-card-bg: #ffffff;
