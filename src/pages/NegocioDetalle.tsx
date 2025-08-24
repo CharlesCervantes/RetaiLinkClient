@@ -137,8 +137,6 @@ const NegocioDetalle: React.FC = () => {
     const formatDate = (timestamp?: number) => {
         if (!timestamp) return "No disponible";
         
-        console.log("Unix timestamp: ", timestamp);
-        
         const date = new Date(timestamp * 1000);
         return date.toLocaleDateString('es-ES', {
             year: 'numeric',
@@ -244,76 +242,141 @@ const NegocioDetalle: React.FC = () => {
     };
 
     const createUserModal = (
-        <DialogContent className="sm:max-w-[425px] bg-card">
+        <DialogContent className="sm:max-w-[500px] bg-card">
             <DialogHeader>
-                <DialogTitle className="text-primary">Crear Nuevo Usuario</DialogTitle>
+                <DialogTitle className="text-primary text-xl flex items-center gap-2">
+                    <span className="text-2xl">👤</span>
+                    Crear Nuevo Usuario
+                </DialogTitle>
+                <p className="text-sm text-secondary mt-2">
+                    Registrar un nuevo usuario para el negocio: <span className="font-semibold">{negocio?.vc_nombre}</span>
+                </p>
             </DialogHeader>
             <form onSubmit={handleSubmitUser} className="space-y-4">
-                <div className="space-y-2">
-                    <Label htmlFor="nombre" className="text-primary">Nombre Completo</Label>
-                    <Input
-                        id="nombre"
-                        value={formData.vc_nombre}
-                        onChange={(e) => setFormData({...formData, vc_nombre: e.target.value})}
-                        placeholder="Ingrese el nombre completo"
-                        className={`custom-input ${formErrors.vc_nombre ? 'error-input' : ''}`}
-                    />
-                    {formErrors.vc_nombre && (
-                        <p className="error-text">{formErrors.vc_nombre}</p>
-                    )}
-                </div>
-                
-                <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                        <Checkbox
-                            id="isEmail"
-                            checked={isEmail}
-                            onCheckedChange={(checked) => {
-                                setIsEmail(checked as boolean);
-                                setFormData({...formData, vc_username: ''});
-                                setFormErrors({...formErrors, vc_username: ''});
-                            }}
-                        />
-                        <Label htmlFor="isEmail" className="text-primary">Usar Email como username</Label>
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-4">
+                        <div className="w-1 h-6 bg-accent rounded-full"></div>
+                        <h3 className="text-lg font-semibold text-primary">Información Personal</h3>
                     </div>
-                    <Label htmlFor="username" className="text-primary">
-                        {isEmail ? 'Email' : 'Teléfono (10 dígitos)'}
-                    </Label>
-                    <Input
-                        id="username"
-                        type={isEmail ? 'email' : 'tel'}
-                        value={formData.vc_username}
-                        onChange={(e) => setFormData({...formData, vc_username: e.target.value})}
-                        placeholder={isEmail ? 'ejemplo@correo.com' : '1234567890'}
-                        className={`custom-input ${formErrors.vc_username ? 'error-input' : ''}`}
-                    />
-                    {formErrors.vc_username && (
-                        <p className="error-text">{formErrors.vc_username}</p>
-                    )}
-                </div>
-                
-                <div className="space-y-2">
-                    <Label htmlFor="password" className="text-primary">Contraseña (generada automáticamente)</Label>
-                    <div className="flex space-x-2">
+                    
+                    <div className="space-y-2">
+                        <Label htmlFor="nombre" className="text-primary flex items-center gap-1">
+                            Nombre Completo
+                            <span className="text-error">*</span>
+                        </Label>
                         <Input
-                            id="password"
-                            value={formData.vc_password}
-                            readOnly
-                            placeholder="Click en generar para crear contraseña"
-                            className="custom-input"
+                            id="nombre"
+                            value={formData.vc_nombre}
+                            onChange={(e) => setFormData({...formData, vc_nombre: e.target.value})}
+                            placeholder="Ej: Juan Pérez García"
+                            className={`custom-input ${formErrors.vc_nombre ? 'error-input' : ''}`}
                         />
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => setFormData({...formData, vc_password: generatePassword()})}
-                            className="btn-outline"
-                        >
-                            Generar
-                        </Button>
+                        {formErrors.vc_nombre && (
+                            <p className="error-text">{formErrors.vc_nombre}</p>
+                        )}
                     </div>
                 </div>
                 
-                <div className="flex justify-end space-x-2">
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-4">
+                        <div className="w-1 h-6 bg-accent rounded-full"></div>
+                        <h3 className="text-lg font-semibold text-primary">Credenciales de Acceso</h3>
+                    </div>
+                    
+                    <div className="space-y-3">
+                        <div className="bg-gray-50 p-3 rounded-lg">
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id="isEmail"
+                                    checked={isEmail}
+                                    onCheckedChange={(checked) => {
+                                        setIsEmail(checked as boolean);
+                                        setFormData({...formData, vc_username: ''});
+                                        setFormErrors({...formErrors, vc_username: ''});
+                                    }}
+                                />
+                                <Label htmlFor="isEmail" className="text-primary font-medium">
+                                    Usar Email como nombre de usuario
+                                </Label>
+                            </div>
+                            <p className="text-xs text-secondary mt-1 ml-6">
+                                {isEmail ? 'Se usará el email para iniciar sesión' : 'Se usará el teléfono para iniciar sesión'}
+                            </p>
+                        </div>
+                        
+                        <div className="space-y-2">
+                            <Label htmlFor="username" className="text-primary flex items-center gap-1">
+                                {isEmail ? '📧 Correo Electrónico' : '📱 Teléfono'}
+                                <span className="text-error">*</span>
+                            </Label>
+                            <Input
+                                id="username"
+                                type={isEmail ? 'email' : 'tel'}
+                                value={formData.vc_username}
+                                onChange={(e) => setFormData({...formData, vc_username: e.target.value})}
+                                placeholder={isEmail ? 'ejemplo@correo.com' : '5512345678'}
+                                className={`custom-input ${formErrors.vc_username ? 'error-input' : ''}`}
+                            />
+                            {formErrors.vc_username && (
+                                <p className="error-text">{formErrors.vc_username}</p>
+                            )}
+                            {!isEmail && (
+                                <p className="text-xs text-secondary">
+                                    Ingresa 10 dígitos sin espacios ni guiones
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+                
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-4">
+                        <div className="w-1 h-6 bg-accent rounded-full"></div>
+                        <h3 className="text-lg font-semibold text-primary">Contraseña</h3>
+                    </div>
+                    
+                    <div className="space-y-2">
+                        <Label htmlFor="password" className="text-primary">🔐 Contraseña Generada</Label>
+                        <div className="space-y-3">
+                            <div className="flex space-x-2">
+                                <Input
+                                    id="password"
+                                    value={formData.vc_password}
+                                    readOnly
+                                    placeholder="Haz clic en 'Generar' para crear una contraseña segura"
+                                    className="custom-input font-mono"
+                                />
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => setFormData({...formData, vc_password: generatePassword()})}
+                                    className="btn-outline px-4"
+                                >
+                                    🎲 Generar
+                                </Button>
+                            </div>
+                            {formData.vc_password && (
+                                <div className="bg-green-50 border border-green-200 p-3 rounded-lg">
+                                    <p className="text-sm text-green-700 font-medium">✅ Contraseña generada correctamente</p>
+                                    <p className="text-xs text-green-600 mt-1">
+                                        Asegúrate de comunicar esta contraseña al usuario de forma segura.
+                                    </p>
+                                </div>
+                            )}
+                            {formErrors.vc_password && (
+                                <p className="error-text">{formErrors.vc_password}</p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+                
+                {formErrors.general && (
+                    <div className="bg-error bg-opacity-10 border border-error rounded-lg p-3">
+                        <p className="error-text text-center">{formErrors.general}</p>
+                    </div>
+                )}
+                
+                <div className="flex justify-end space-x-3 pt-4 border-t border-border">
                     <Button
                         type="button"
                         variant="outline"
@@ -322,16 +385,17 @@ const NegocioDetalle: React.FC = () => {
                             resetForm();
                         }}
                         className="btn-secondary"
+                        disabled={isSubmitting}
                     >
                         Cancelar
                     </Button>
                     <LoadingButton
                         type="submit"
                         loading={isSubmitting}
-                        loadingText="Creando..."
+                        loadingText="Creando usuario..."
                         className="btn-primary"
                     >
-                        Crear Usuario
+                        👤 Crear Usuario
                     </LoadingButton>
                 </div>
             </form>
@@ -341,9 +405,10 @@ const NegocioDetalle: React.FC = () => {
     return (
         <div className="space-y-6">
             <PageHeader
-                title={`Detalle: ${negocio.vc_nombre}`}
+                title={`${negocio.vc_nombre}`}
                 subtitle="Información completa del negocio y gestión de usuarios"
                 breadcrumbs={[
+                    { label: "Inicio", onClick: () => navigate('/') },
                     { label: "Negocios", onClick: () => navigate('/negocios') },
                     { label: negocio.vc_nombre }
                 ]}
@@ -352,24 +417,44 @@ const NegocioDetalle: React.FC = () => {
                         label: "Volver a Negocios",
                         onClick: () => navigate('/negocios'),
                         variant: "outline",
-                        icon: "←"
+                        icon: "🏢"
                     }
                 ]}
             />
 
+            {/* Resumen del negocio */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="custom-card p-6 text-center">
+                    <div className="text-3xl mb-2">🏢</div>
+                    <div className="text-lg font-semibold text-primary">{negocio.vc_nombre}</div>
+                    <div className="text-sm text-secondary">Nombre del Negocio</div>
+                </div>
+                
+                <div className="custom-card p-6 text-center">
+                    <div className="text-2xl font-bold text-info mb-2">#{negocio.id_negocio}</div>
+                    <div className="text-sm text-secondary">ID del Negocio</div>
+                </div>
+                
+                <div className="custom-card p-6 text-center">
+                    <div className="mb-2">
+                        <StatusBadge status={negocio.b_activo !== false ? 'active' : 'inactive'} />
+                    </div>
+                    <div className="text-sm text-secondary">Estado Actual</div>
+                </div>
+                
+                <div className="custom-card p-6 text-center">
+                    <div className="text-lg font-semibold text-primary mb-2">
+                        {usuarios.length || 0}
+                    </div>
+                    <div className="text-sm text-secondary">Usuarios Registrados</div>
+                </div>
+            </div>
+
             <InfoCard
-                title="Información del Negocio"
-                subtitle="Datos principales y estado actual"
-                columns={4}
+                title="Información Detallada"
+                subtitle="Datos de registro y actualización"
+                columns={2}
                 items={[
-                    {
-                        label: "ID del Negocio",
-                        value: negocio.id_negocio
-                    },
-                    {
-                        label: "Estado",
-                        value: <StatusBadge status={negocio.b_activo !== false ? 'active' : 'inactive'} />
-                    },
                     {
                         label: "Fecha de Registro",
                         value: formatDate(negocio.dt_registro)
@@ -382,47 +467,85 @@ const NegocioDetalle: React.FC = () => {
             />
 
             <ActionCard
-                title="Acciones Disponibles"
-                subtitle="Gestiona los diferentes aspectos del negocio"
+                title="Gestión del Negocio"
+                subtitle="Administra usuarios y configuraciones"
                 layout="grid"
                 actions={[
                     {
-                        label: mostrarUsuarios ? 'Ocultar Usuarios' : 'Ver Usuarios',
+                        label: mostrarUsuarios ? 'Ocultar Usuarios' : 'Ver Usuarios del Negocio',
                         onClick: cargarUsuarios,
                         loading: cargandoUsuarios,
-                        variant: 'secondary',
-                        icon: mostrarUsuarios ? "👥" : "👥",
-                        loadingText: 'Cargando usuarios...'
+                        variant: mostrarUsuarios ? 'outline' : 'secondary',
+                        icon: "👥",
+                        loadingText: 'Cargando usuarios...',
+                        description: mostrarUsuarios ? 'Ocultar lista de usuarios' : 'Ver todos los usuarios registrados'
+                    },
+                    {
+                        label: 'Editar Información',
+                        onClick: () => {
+                            // TODO: Implementar edición inline o modal
+                            console.log('Editar negocio:', negocio.id_negocio);
+                        },
+                        variant: 'outline',
+                        icon: "✏️",
+                        description: 'Modificar datos del negocio'
+                    },
+                    {
+                        label: 'Ver Reportes',
+                        onClick: () => {
+                            // TODO: Implementar reportes
+                            console.log('Ver reportes del negocio:', negocio.id_negocio);
+                        },
+                        variant: 'outline',
+                        icon: "📊",
+                        description: 'Generar reportes y estadísticas'
                     }
                 ]}
             />
 
             {/* Sección de Usuarios */}
             {mostrarUsuarios && (
-                <UserList
-                    title={`Usuarios del Negocio: ${negocio.vc_nombre}`}
-                    users={usuarios}
-                    loading={cargandoUsuarios && !mostrarUsuarios}
-                    onCreateUser={() => setModalOpen(true)}
-                    creatingUser={isSubmitting}
-                    emptyMessage={`No hay usuarios registrados para ${negocio.vc_nombre}.`}
-                    createUserModal={createUserModal}
-                    renderUserActions={(user) => (
-                        <>
-                            <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => {
-                                    // Implementar editar usuario
-                                    console.log('Editar usuario:', user.id_usuario);
-                                }}
-                                className="btn-outline text-xs"
-                            >
-                                Editar
-                            </Button>
-                        </>
-                    )}
-                />
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="text-2xl">👥</div>
+                            <div>
+                                <h2 className="text-xl font-semibold text-primary">
+                                    Usuarios de {negocio.vc_nombre}
+                                </h2>
+                                <p className="text-sm text-secondary">
+                                    Gestiona los usuarios registrados en este negocio
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <UserList
+                        title=""
+                        users={usuarios}
+                        loading={cargandoUsuarios && !mostrarUsuarios}
+                        onCreateUser={() => setModalOpen(true)}
+                        creatingUser={isSubmitting}
+                        emptyMessage={`No hay usuarios registrados para ${negocio.vc_nombre}.`}
+                        createUserModal={createUserModal}
+                        renderUserActions={(user) => (
+                            <>
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => {
+                                        // TODO: Implementar editar usuario
+                                        console.log('Editar usuario:', user.id_usuario);
+                                    }}
+                                    className="btn-outline text-xs"
+                                    title="Editar usuario"
+                                >
+                                    ✏️ Editar
+                                </Button>
+                            </>
+                        )}
+                    />
+                </div>
             )}
 
             <Dialog open={modalOpen} onOpenChange={setModalOpen}>

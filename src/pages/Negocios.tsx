@@ -1,249 +1,305 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { getAllNegocios, createNegocio, updateNegocio, deleteNegocio, type Negocio } from "../Fetch/negocios";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { useNavigate } from "react-router-dom";
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-    DialogFooter,
-    DialogDescription,
-    DialogClose,
-} from "../components/ui/dialog";
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from "../components/ui/alert-dialog";
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { PageHeader } from '../components/ui/page-header';
+import { NegociosTable } from '../components/ui/negocios-table';
+import { NegocioModal } from '../components/ui/negocio-modal';
+import { ActionCard } from '../components/ui/action-card';
+import { InfoCard } from '../components/ui/info-card';
+import { LoadingButton } from '../components/ui/loading-button';
+import { 
+  Negocio, 
+  getAllNegocios, 
+  createNegocio, 
+  updateNegocio, 
+  deleteNegocio
+} from '../Fetch/negocios';
 
-const NegociosList: React.FC = () => {
-    const navigate = useNavigate();
-    const [data, setData] = useState<Negocio[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [filter, setFilter] = useState("");
+const Negocios: React.FC = () => {
+  const navigate = useNavigate();
 
-    // create/edit state
-    const [openCreate, setOpenCreate] = useState(false);
-    const [openEdit, setOpenEdit] = useState(false);
-    const [editing, setEditing] = useState<Negocio | null>(null);
-    const [nombreNuevo, setNombreNuevo] = useState("");
-    const [nombreEdit, setNombreEdit] = useState("");
+  // Estados principales
+  const [negocios, setNegocios] = useState<Negocio[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    const load = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            const res = await getAllNegocios();
-            if (res.ok) setData(res.data || []);
-            } catch (e) {
-                const msg = e instanceof Error ? e.message : "Error al cargar";
-                setError(msg);
-        } finally {
-            setLoading(false);
+  // Estados de búsqueda y filtros
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searching, setSearching] = useState(false);
+
+  // Estados del modal
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<'create' | 'edit' | 'view'>('create');
+  const [selectedNegocio, setSelectedNegocio] = useState<Negocio | null>(null);
+  const [modalLoading, setModalLoading] = useState(false);
+
+  // Estados de acciones
+  const [deletingId, setDeletingId] = useState<number | undefined>();
+
+  // Estadísticas calculadas
+  const stats = {
+    total: negocios.length,
+    activos: negocios.filter(n => n.b_activo !== false).length,
+    inactivos: negocios.filter(n => n.b_activo === false).length
+  };
+
+  // Cargar negocios
+  const loadNegocios = useCallback(async (search?: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await getAllNegocios();
+
+      if (response.ok && response.data) {
+        let filteredData = response.data;
+        if (search) {
+          filteredData = response.data.filter(negocio => 
+            negocio.vc_nombre.toLowerCase().includes(search.toLowerCase())
+          );
         }
-    };
+        setNegocios(filteredData);
+      } else {
+        setError(response.message || 'Error al cargar negocios');
+      }
+    } catch (err) {
+      console.error('Error cargando negocios:', err);
+      setError('Error de conexión al cargar negocios');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-    useEffect(() => {
-        load();
-    }, []);
+  // Búsqueda con debounce
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (searchTerm.trim()) {
+        setSearching(true);
+        loadNegocios(searchTerm).finally(() => setSearching(false));
+      } else if (searchTerm === '') {
+        loadNegocios();
+      }
+    }, 300);
 
-    const filtered = useMemo(() => {
-        const f = filter.trim().toLowerCase();
-        if (!f) return data;
-        return data.filter((n) => n.vc_nombre.toLowerCase().includes(f));
-    }, [data, filter]);
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm, loadNegocios]);
 
-    const onCreate = async () => {
-        if (!nombreNuevo.trim()) return;
-        setLoading(true);
-        try {
-            await createNegocio(nombreNuevo.trim());
-            setNombreNuevo("");
-            setOpenCreate(false);
-            await load();
-            } catch (e) {
-                const msg = e instanceof Error ? e.message : "Error al crear";
-                setError(msg);
-        } finally {
-            setLoading(false);
-        }
-    };
+  // Cargar datos iniciales
+  useEffect(() => {
+    loadNegocios();
+  }, [loadNegocios]);
 
-    const onStartEdit = (n: Negocio) => {
-        setEditing(n);
-        setNombreEdit(n.vc_nombre);
-        setOpenEdit(true);
-    };
+  // Handlers del modal
+  const handleCreateNew = () => {
+    setSelectedNegocio(null);
+    setModalMode('create');
+    setModalOpen(true);
+  };
 
-    const onViewNegocio = (negocio: Negocio) => {
-        navigate(`/negocios/${negocio.id_negocio}`, { state: { negocio } });
-    };
+  const handleEdit = (negocio: Negocio) => {
+    setSelectedNegocio(negocio);
+    setModalMode('edit');
+    setModalOpen(true);
+  };
 
-    const onEdit = async () => {
-        if (!editing) return;
-        setLoading(true);
-        try {
-            await updateNegocio(editing.id_negocio, { vc_nombre: nombreEdit.trim() });
-            setOpenEdit(false);
-            setEditing(null);
-            await load();
-            } catch (e) {
-                const msg = e instanceof Error ? e.message : "Error al actualizar";
-                setError(msg);
-        } finally {
-            setLoading(false);
-        }
-    };
+  const handleView = (negocio: Negocio) => {
+    navigate(`/negocios/${negocio.id_negocio}`, { state: { negocio } });
+  };
 
-    const onDelete = async (id: number) => {
-        setLoading(true);
-        try {
-            await deleteNegocio(id);
-            await load();
-            } catch (e) {
-                const msg = e instanceof Error ? e.message : "Error al eliminar";
-                setError(msg);
-        } finally {
-            setLoading(false);
-        }
-    };
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setSelectedNegocio(null);
+    setModalLoading(false);
+  };
 
+  // Crear/Editar negocio
+  const handleSubmitNegocio = async (formData: Negocio) => {
+    setModalLoading(true);
+    try {
+      let response;
+      
+      if (modalMode === 'create') {
+        response = await createNegocio(formData.vc_nombre);
+      } else {
+        response = await updateNegocio(selectedNegocio!.id_negocio, { vc_nombre: formData.vc_nombre });
+      }
+
+      if (response.ok) {
+        await loadNegocios();
+        handleCloseModal();
+      } else {
+        throw new Error(response.message || 'Error al guardar negocio');
+      }
+    } catch (error) {
+      console.error('Error en submit:', error);
+      throw error;
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  // Eliminar negocio
+  const handleDelete = async (id: number) => {
+    if (!confirm('¿Estás seguro de que deseas eliminar este negocio?')) {
+      return;
+    }
+
+    setDeletingId(id);
+    try {
+      const response = await deleteNegocio(id);
+      
+      if (response.ok) {
+        await loadNegocios();
+      } else {
+        alert(response.message || 'Error al eliminar negocio');
+      }
+    } catch (error) {
+      console.error('Error eliminando negocio:', error);
+      alert('Error de conexión al eliminar negocio');
+    } finally {
+      setDeletingId(undefined);
+    }
+  };
+
+  // Limpiar búsqueda
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    loadNegocios();
+  };
+
+  if (error) {
     return (
-        <div className="space-y-4">
-            <div className="flex items-center justify-between gap-4">
-                <h2 className="text-xl font-semibold">Establecimientos</h2>
-                <div className="flex items-center gap-2">
-                    <Input
-                        placeholder="Buscar por nombre..."
-                        value={filter}
-                        onChange={(e) => setFilter(e.target.value)}
-                        className="w-64"
-                    />
-                    <Dialog open={openCreate} onOpenChange={setOpenCreate}>
-                        <DialogTrigger asChild>
-                            <Button>Nuevo</Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>Crear establecimiento</DialogTitle>
-                                <DialogDescription>Ingresa el nombre del negocio</DialogDescription>
-                            </DialogHeader>
-                            <div className="space-y-2">
-                                <Input
-                                    placeholder="Nombre"
-                                    value={nombreNuevo}
-                                    onChange={(e) => setNombreNuevo(e.target.value)}
-                                />
-                            </div>
-                            <DialogFooter>
-                                <DialogClose asChild>
-                                    <Button variant="outline">Cancelar</Button>
-                                </DialogClose>
-                                <Button onClick={onCreate} disabled={loading || !nombreNuevo.trim()}>
-                                    {loading ? "Guardando..." : "Guardar"}
-                                </Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
-                </div>
-            </div>
-
-            {error && (
-                <div className="text-sm text-red-600">{error}</div>
-            )}
-
-            <div className="rounded-md border">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>ID</TableHead>
-                            <TableHead>Nombre</TableHead>
-                            <TableHead className="w-[200px]">Acciones</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {loading && (
-                            <TableRow>
-                                <TableCell colSpan={3}>Cargando...</TableCell>
-                            </TableRow>
-                        )}
-                        {!loading && filtered.length === 0 && (
-                            <TableRow>
-                                <TableCell colSpan={3}>Sin resultados</TableCell>
-                            </TableRow>
-                        )}
-                        {!loading &&
-                            filtered.map((n) => (
-                                <TableRow key={n.id_negocio}>
-                                    <TableCell>{n.id_negocio}</TableCell>
-                                    <TableCell>{n.vc_nombre}</TableCell>
-                                    <TableCell>
-                                        <div className="flex items-center gap-2">
-                                            <Button variant="default" size="sm" onClick={() => onViewNegocio(n)}>
-                                                Ver
-                                            </Button>
-                                            <Button variant="outline" size="sm" onClick={() => onStartEdit(n)}>
-                                                Editar
-                                            </Button>
-                                            <AlertDialog>
-                                                <AlertDialogTrigger asChild>
-                                                    <Button variant="destructive" size="sm">Eliminar</Button>
-                                                </AlertDialogTrigger>
-                                                <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                        <AlertDialogTitle>Eliminar establecimiento</AlertDialogTitle>
-                                                        <AlertDialogDescription>
-                                                            Esta acción no se puede deshacer.
-                                                        </AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                                        <AlertDialogAction onClick={() => onDelete(n.id_negocio)}>
-                                                            Eliminar
-                                                        </AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                    </TableBody>
-                </Table>
-            </div>
-
-            {/* Edit dialog */}
-            <Dialog open={openEdit} onOpenChange={setOpenEdit}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Editar establecimiento</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-2">
-                        <Input value={nombreEdit} onChange={(e) => setNombreEdit(e.target.value)} />
-                    </div>
-                    <DialogFooter>
-                        <DialogClose asChild>
-                            <Button variant="outline">Cancelar</Button>
-                        </DialogClose>
-                        <Button onClick={onEdit} disabled={loading || !nombreEdit.trim()}>
-                            {loading ? "Guardando..." : "Guardar"}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-        </div>
+      <div className="space-y-6">
+        <PageHeader
+          title="Negocios"
+          subtitle="Error al cargar datos"
+          actions={[
+            {
+              label: "Reintentar",
+              onClick: () => loadNegocios(),
+              variant: "outline"
+            }
+          ]}
+        />
+        <InfoCard
+          title="Error de Conexión"
+          items={[
+            {
+              label: "Mensaje",
+              value: <span className="text-error">{error}</span>
+            }
+          ]}
+        />
+      </div>
     );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <PageHeader
+        title="Negocios"
+        subtitle={`Gestiona y administra todos los negocios del sistema`}
+        breadcrumbs={[
+          { label: "Inicio", onClick: () => navigate('/') },
+          { label: "Negocios" }
+        ]}
+        actions={[
+          {
+            label: "Nuevo Negocio",
+            onClick: handleCreateNew,
+            variant: "default",
+            icon: "🏢"
+          }
+        ]}
+      />
+
+      {/* Estadísticas */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="custom-card p-4 text-center">
+          <div className="text-2xl font-bold text-primary">{stats.total}</div>
+          <div className="text-sm text-secondary">Total</div>
+        </div>
+        
+        <div className="custom-card p-4 text-center">
+          <div className="text-2xl font-bold text-success">{stats.activos}</div>
+          <div className="text-sm text-secondary">Activos</div>
+        </div>
+        
+        <div className="custom-card p-4 text-center">
+          <div className="text-2xl font-bold text-error">{stats.inactivos}</div>
+          <div className="text-sm text-secondary">Inactivos</div>
+        </div>
+      </div>
+
+      {/* Búsqueda y filtros */}
+      <ActionCard
+        title="Búsqueda y Filtros"
+        subtitle="Encuentra negocios rápidamente"
+        actions={[]}
+      >
+        <div className="flex gap-3 items-end">
+          <div className="flex-1">
+            <Input
+              placeholder="Buscar por nombre del negocio..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="custom-input"
+            />
+          </div>
+          
+          {searchTerm && (
+            <Button
+              variant="outline"
+              onClick={handleClearSearch}
+              className="btn-outline"
+            >
+              ✨ Limpiar
+            </Button>
+          )}
+          
+          <LoadingButton
+            onClick={() => loadNegocios()}
+            loading={loading}
+            variant="secondary"
+            className="btn-secondary"
+          >
+            🔄 Actualizar
+          </LoadingButton>
+        </div>
+      </ActionCard>
+
+      {/* Tabla de negocios */}
+      <div className="space-y-4">
+        {searching && (
+          <div className="text-center py-4">
+            <div className="loading-spinner mx-auto mb-2"></div>
+            <p className="text-secondary">Buscando negocios...</p>
+          </div>
+        )}
+        
+        <NegociosTable
+          negocios={negocios}
+          loading={loading}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onView={handleView}
+          deletingId={deletingId}
+        />
+      </div>
+
+      {/* Modal */}
+      <NegocioModal
+        isOpen={modalOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleSubmitNegocio}
+        negocio={selectedNegocio}
+        loading={modalLoading}
+        mode={modalMode}
+      />
+    </div>
+  );
 };
 
-export default NegociosList;
+export default Negocios;
