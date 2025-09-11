@@ -15,7 +15,7 @@ import { type Negocio, getNegocioById } from "../Fetch/negocios";
 import { getUsersByBusiness, Usuario, registerUserByBuisness } from "../Fetch/usuarios";
 import { generatePassword, validateEmail, validateMexicanPhone } from "../utils/passwordGenerator";
 
-import { UsersIcon, UserCheck2, FileQuestion } from "lucide-react";
+import { UsersIcon, UserCheck2, FileQuestion, Edit2Icon } from "lucide-react";
 
 const NegocioDetalle: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -488,22 +488,6 @@ const NegocioDetalle: React.FC = () => {
                         icon: <FileQuestion />,
                         onClick: () => {}
                     }
-                    // {
-                    //     label: 'Editar Información',
-                    //     onClick: () => {
-                    //         // TODO: Implementar edición inline o modal
-                    //         console.log('Editar negocio:', negocio.id_negocio);
-                    //     },
-                    //     variant: 'outline',
-                    //     icon: <Edit2Icon />,
-                    // },
-                    // {
-                    //     label: 'Ver Reportes',
-                    //     onClick: () => {
-                    //     },
-                    //     variant: 'outline',
-                    //     icon: <ChartColumn />,
-                    // }
                 ]}
             />
 
@@ -512,7 +496,7 @@ const NegocioDetalle: React.FC = () => {
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="text-2xl">👥</div>
+                            <div className="text-2xl"><UsersIcon/></div>
                             <div>
                                 <h2 className="text-xl font-semibold text-primary">
                                     Usuarios de {negocio.vc_nombre}
@@ -544,7 +528,7 @@ const NegocioDetalle: React.FC = () => {
                                     className="btn-outline text-xs"
                                     title="Editar usuario"
                                 >
-                                    ✏️ Editar
+                                    <Edit2Icon /> Editar
                                 </Button>
                             </>
                         )}
