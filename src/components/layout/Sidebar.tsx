@@ -45,68 +45,73 @@ export default function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="flex-1 p-2 flex flex-col justify-between">
-      <div className="space-y-2">
-        <SidebarMenu>
-          <SidebarMenuItem asChild>
-            <Link 
-              to="/" 
-              className={`flex items-center gap-3 p-3 rounded-lg hover:bg-hover ${getActiveClass("/")}`}
-              style={getActiveStyle("/")}
-            >
-              <Home className="w-4 h-4" /> Inicio
-            </Link>
-          </SidebarMenuItem>
-          <SidebarMenuItem asChild>
-            <Link 
-              to="/productList" 
-              className={`flex items-center gap-3 p-3 rounded-lg hover:bg-hover text-sm ${getActiveClass("/productList")}`}
-              style={getActiveStyle("/productList")}
-            >
-              <FormInputIcon className="w-4 h-4" /> Productos
-            </Link>
-          </SidebarMenuItem>
-          <SidebarMenuItem asChild>
-            <Link 
-              to="/solicitudes" 
-              className={`flex items-center gap-3 p-3 rounded-lg hover:bg-hover text-sm ${getActiveClass("/solicitudes")}`}
-              style={getActiveStyle("/solicitudes")}
-            >
-              <BadgePlus className="w-4 h-4" /> Solicitudes
-            </Link>
-          </SidebarMenuItem>
-          {user?.i_rol === 1 && (
-            <>
-              <SidebarMenuItem asChild>
-                <Link 
-                  to="/negocios" 
-                  className={`flex items-center gap-3 p-3 rounded-lg hover:bg-hover text-sm ${getActiveClass("/negocios")}`}
-                  style={getActiveStyle("/negocios")}
-                >
-                  <FactoryIcon className="w-4 h-4" /> Negocios
-                </Link>
-              </SidebarMenuItem>
-              <SidebarMenuItem asChild>
-                <Link 
-                  to="/establecimientos" 
-                  className={`flex items-center gap-3 p-3 rounded-lg hover:bg-hover text-sm ${getActiveClass("/establecimientos")}`}
-                  style={getActiveStyle("/establecimientos")}
-                >
-                  <Store className="w-4 h-4" /> Establecimientos
-                </Link>
-              </SidebarMenuItem>
-              <SidebarMenuItem asChild>
-                <Link 
-                  to="/preguntas" 
-                  className={`flex items-center gap-3 p-3 rounded-lg hover:bg-hover text-sm ${getActiveClass("/preguntas")}`}
-                  style={getActiveStyle("/preguntas")}
-                >
-                  <FileQuestionIcon className="w-4 h-4" /> Preguntas
-                </Link>
-              </SidebarMenuItem>
-            </>
-          )}
-        </SidebarMenu>
-      </div>
+        <div className="space-y-2">
+          <SidebarMenu>
+
+            {/* Clientes (Negocios) SUPERADMIN */}
+            {user?.i_rol === 1 && (
+            <SidebarMenuItem asChild>
+              <Link to="/negocios" className={`flex items-center gap-3 p-3 rounded-lg hover:bg-hover text-sm ${getActiveClass("/negocios")}`} style={getActiveStyle("/negocios")}>
+                <FactoryIcon className="w-4 h-4" /> Clientes
+              </Link>
+            </SidebarMenuItem>
+            )}
+
+            {/* Tiendas (Establecimientos) SUPERADMIN */}
+            {user?.i_rol === 1 && (
+            <SidebarMenuItem asChild>
+              <Link to="/establecimientos" className={`flex items-center gap-3 p-3 rounded-lg hover:bg-hover text-sm ${getActiveClass("/establecimientos")}`} style={getActiveStyle("/establecimientos")}>
+                <Store className="w-4 h-4" /> Tiendas
+              </Link>
+            </SidebarMenuItem>
+            )}
+
+            {/* Preguntas (Preguntas) SUPERADMIN */}
+            {user?.i_rol === 1 && (
+            <SidebarMenuItem asChild>
+              <Link to="/preguntas" className={`flex items-center gap-3 p-3 rounded-lg hover:bg-hover text-sm ${getActiveClass("/preguntas")}`}style={getActiveStyle("/preguntas")}>
+                <FileQuestionIcon className="w-4 h-4" /> Preguntas
+              </Link>
+            </SidebarMenuItem>
+            )}
+
+            
+            {/* <SidebarMenuItem asChild>
+              <Link 
+                to="/" 
+                className={`flex items-center gap-3 p-3 rounded-lg hover:bg-hover ${getActiveClass("/")}`}
+                style={getActiveStyle("/")}
+              >
+                <Home className="w-4 h-4" /> Inicio
+              </Link>
+            </SidebarMenuItem> */}
+            {/* <SidebarMenuItem asChild>
+              <Link 
+                to="/productList" 
+                className={`flex items-center gap-3 p-3 rounded-lg hover:bg-hover text-sm ${getActiveClass("/productList")}`}
+                style={getActiveStyle("/productList")}
+              >
+                <FormInputIcon className="w-4 h-4" /> Productos
+              </Link>
+            </SidebarMenuItem> */}
+            {/* <SidebarMenuItem asChild>
+              <Link 
+                to="/solicitudes" 
+                className={`flex items-center gap-3 p-3 rounded-lg hover:bg-hover text-sm ${getActiveClass("/solicitudes")}`}
+                style={getActiveStyle("/solicitudes")}
+              >
+                <BadgePlus className="w-4 h-4" /> Solicitudes
+              </Link>
+            </SidebarMenuItem> */}
+            {user?.i_rol === 1 && (
+              <>
+                
+                
+                
+              </>
+            )}
+          </SidebarMenu>
+        </div>
         <div className="space-y-3">
           {/* Separador visual */}
           <div className="border-t border-border"></div>
