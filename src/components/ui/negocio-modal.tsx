@@ -4,7 +4,6 @@ import { Input } from './input';
 import { Label } from './label';
 import { LoadingButton } from './loading-button';
 import { Button } from './button';
-import { Textarea } from './textarea';
 import { Negocio } from '../../Fetch/negocios';
 
 interface NegocioModalProps {
@@ -41,7 +40,6 @@ export const NegocioModal: React.FC<NegocioModalProps> = ({
   onClose,
   onSubmit,
   negocio,
-  loading = false,
   mode
 }) => {
   const [formData, setFormData] = useState<Negocio>(initialForm);

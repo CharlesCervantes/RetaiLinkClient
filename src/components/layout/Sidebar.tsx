@@ -1,6 +1,6 @@
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem } from "../../components/ui/sidebar";
 import logo from '../../assets/promotorialogotipo_positivo.png';
-import { Home, BadgePlus, FormInputIcon, FactoryIcon, Store, FileQuestionIcon} from "lucide-react";
+import { FactoryIcon, Store, FileQuestionIcon} from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import LogoutButton from "../LogoutButton";
 import { ThemeToggle } from "../ui/theme-toggle";

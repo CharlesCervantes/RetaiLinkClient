@@ -15,6 +15,8 @@ import { type Negocio, getNegocioById } from "../Fetch/negocios";
 import { getUsersByBusiness, Usuario, registerUserByBuisness } from "../Fetch/usuarios";
 import { generatePassword, validateEmail, validateMexicanPhone } from "../utils/passwordGenerator";
 
+import { UsersIcon, UserCheck2, FileQuestion } from "lucide-react";
+
 const NegocioDetalle: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const location = useLocation();
@@ -405,19 +407,19 @@ const NegocioDetalle: React.FC = () => {
     return (
         <div className="space-y-6">
             <PageHeader
-                title={`${negocio.vc_nombre}`}
-                subtitle="Información completa del negocio y gestión de usuarios"
+                title={`${negocio.vc_nombre}:`}
+                subtitle="Información y gestión completa del cliente"
                 breadcrumbs={[
                     { label: "Inicio", onClick: () => navigate('/') },
-                    { label: "Negocios", onClick: () => navigate('/negocios') },
+                    { label: "Clientes", onClick: () => navigate('/negocios') },
                     { label: negocio.vc_nombre }
                 ]}
                 actions={[
                     {
-                        label: "Volver a Negocios",
+                        label: "Volver a Clientes",
                         onClick: () => navigate('/negocios'),
                         variant: "outline",
-                        icon: "🏢"
+                        icon: <UserCheck2/>
                     }
                 ]}
             />
@@ -425,14 +427,16 @@ const NegocioDetalle: React.FC = () => {
             {/* Resumen del negocio */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="custom-card p-6 text-center">
-                    <div className="text-3xl mb-2">🏢</div>
+                    <div className="flex justify-center mb-2">
+                        <UserCheck2 size={48} className="text-primary" />
+                    </div>
                     <div className="text-lg font-semibold text-primary">{negocio.vc_nombre}</div>
-                    <div className="text-sm text-secondary">Nombre del Negocio</div>
+                    <div className="text-sm text-secondary">Nombre del cliente</div>
                 </div>
                 
                 <div className="custom-card p-6 text-center">
                     <div className="text-2xl font-bold text-info mb-2">#{negocio.id_negocio}</div>
-                    <div className="text-sm text-secondary">ID del Negocio</div>
+                    <div className="text-sm text-secondary">ID del cliente</div>
                 </div>
                 
                 <div className="custom-card p-6 text-center">
@@ -476,30 +480,30 @@ const NegocioDetalle: React.FC = () => {
                         onClick: cargarUsuarios,
                         loading: cargandoUsuarios,
                         variant: mostrarUsuarios ? 'outline' : 'secondary',
-                        icon: "👥",
+                        icon: <UsersIcon/>,
                         loadingText: 'Cargando usuarios...',
-                        description: mostrarUsuarios ? 'Ocultar lista de usuarios' : 'Ver todos los usuarios registrados'
                     },
                     {
-                        label: 'Editar Información',
-                        onClick: () => {
-                            // TODO: Implementar edición inline o modal
-                            console.log('Editar negocio:', negocio.id_negocio);
-                        },
-                        variant: 'outline',
-                        icon: "✏️",
-                        description: 'Modificar datos del negocio'
-                    },
-                    {
-                        label: 'Ver Reportes',
-                        onClick: () => {
-                            // TODO: Implementar reportes
-                            console.log('Ver reportes del negocio:', negocio.id_negocio);
-                        },
-                        variant: 'outline',
-                        icon: "📊",
-                        description: 'Generar reportes y estadísticas'
+                        label: 'Preguntas',
+                        icon: <FileQuestion />,
+                        onClick: () => {}
                     }
+                    // {
+                    //     label: 'Editar Información',
+                    //     onClick: () => {
+                    //         // TODO: Implementar edición inline o modal
+                    //         console.log('Editar negocio:', negocio.id_negocio);
+                    //     },
+                    //     variant: 'outline',
+                    //     icon: <Edit2Icon />,
+                    // },
+                    // {
+                    //     label: 'Ver Reportes',
+                    //     onClick: () => {
+                    //     },
+                    //     variant: 'outline',
+                    //     icon: <ChartColumn />,
+                    // }
                 ]}
             />
 

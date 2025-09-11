@@ -1,20 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
 import { PageHeader } from '../components/ui/page-header';
 import { NegociosTable } from '../components/ui/negocios-table';
 import { NegocioModal } from '../components/ui/negocio-modal';
-import { ActionCard } from '../components/ui/action-card';
 import { InfoCard } from '../components/ui/info-card';
-import { LoadingButton } from '../components/ui/loading-button';
-import { 
-  Negocio, 
-  getAllNegocios, 
-  createNegocio, 
-  updateNegocio, 
-  deleteNegocio
-} from '../Fetch/negocios';
+import { Negocio, getAllNegocios, createNegocio, updateNegocio, deleteNegocio } from '../Fetch/negocios';
 
 const Negocios: React.FC = () => {
   const navigate = useNavigate();
@@ -23,10 +13,6 @@ const Negocios: React.FC = () => {
   const [negocios, setNegocios] = useState<Negocio[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Estados de búsqueda y filtros
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searching, setSearching] = useState(false);
 
   // Estados del modal
   const [modalOpen, setModalOpen] = useState(false);
@@ -70,20 +56,6 @@ const Negocios: React.FC = () => {
       setLoading(false);
     }
   }, []);
-
-  // Búsqueda con debounce
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (searchTerm.trim()) {
-        setSearching(true);
-        loadNegocios(searchTerm).finally(() => setSearching(false));
-      } else if (searchTerm === '') {
-        loadNegocios();
-      }
-    }, 300);
-
-    return () => clearTimeout(timeoutId);
-  }, [searchTerm, loadNegocios]);
 
   // Cargar datos iniciales
   useEffect(() => {
@@ -162,12 +134,6 @@ const Negocios: React.FC = () => {
     }
   };
 
-  // Limpiar búsqueda
-  const handleClearSearch = () => {
-    setSearchTerm('');
-    loadNegocios();
-  };
-
   if (error) {
     return (
       <div className="space-y-6">
@@ -233,51 +199,8 @@ const Negocios: React.FC = () => {
         </div>
       </div>
 
-      {/* Búsqueda y filtros */}
-      <ActionCard
-        title="Búsqueda y Filtros"
-        subtitle="Encuentra negocios rápidamente"
-        actions={[]}
-      >
-        <div className="flex gap-3 items-end">
-          <div className="flex-1">
-            <Input
-              placeholder="Buscar por nombre del negocio..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="custom-input"
-            />
-          </div>
-          
-          {searchTerm && (
-            <Button
-              variant="outline"
-              onClick={handleClearSearch}
-              className="btn-outline"
-            >
-              ✨ Limpiar
-            </Button>
-          )}
-          
-          <LoadingButton
-            onClick={() => loadNegocios()}
-            loading={loading}
-            variant="secondary"
-            className="btn-secondary"
-          >
-            🔄 Actualizar
-          </LoadingButton>
-        </div>
-      </ActionCard>
-
       {/* Tabla de negocios */}
       <div className="space-y-4">
-        {searching && (
-          <div className="text-center py-4">
-            <div className="loading-spinner mx-auto mb-2"></div>
-            <p className="text-secondary">Buscando negocios...</p>
-          </div>
-        )}
         
         <NegociosTable
           negocios={negocios}
