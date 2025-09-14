@@ -5,6 +5,7 @@ import { NegociosTable } from '../components/ui/negocios-table';
 import { NegocioModal } from '../components/ui/negocio-modal';
 import { InfoCard } from '../components/ui/info-card';
 import { Negocio, getAllNegocios, createNegocio, updateNegocio, deleteNegocio } from '../Fetch/negocios';
+import { UsersIcon } from "lucide-react";
 
 const Negocios: React.FC = () => {
   const navigate = useNavigate();
@@ -113,7 +114,7 @@ const Negocios: React.FC = () => {
 
   // Eliminar negocio
   const handleDelete = async (id: number) => {
-    if (!confirm('¿Estás seguro de que deseas eliminar este negocio?')) {
+    if (!confirm('¿Estás seguro de que deseas eliminar este cliente?')) {
       return;
     }
 
@@ -124,11 +125,11 @@ const Negocios: React.FC = () => {
       if (response.ok) {
         await loadNegocios();
       } else {
-        alert(response.message || 'Error al eliminar negocio');
+        alert(response.message || 'Error al eliminar cliente');
       }
     } catch (error) {
-      console.error('Error eliminando negocio:', error);
-      alert('Error de conexión al eliminar negocio');
+      console.error('Error eliminando cliente:', error);
+      alert('Error de conexión al eliminar cliente');
     } finally {
       setDeletingId(undefined);
     }
@@ -165,18 +166,18 @@ const Negocios: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <PageHeader
-        title="Negocios"
-        subtitle={`Gestiona y administra todos los negocios del sistema`}
+        title="Clientes"
+        subtitle={`Gestiona y administra todos los clientes del sistema`}
         breadcrumbs={[
           { label: "Inicio", onClick: () => navigate('/') },
-          { label: "Negocios" }
+          { label: "Clientes" }
         ]}
         actions={[
           {
-            label: "Nuevo Negocio",
+            label: "Nuevo Cliente",
             onClick: handleCreateNew,
             variant: "default",
-            icon: "🏢"
+            icon: <UsersIcon />
           }
         ]}
       />

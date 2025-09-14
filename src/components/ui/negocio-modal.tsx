@@ -5,6 +5,7 @@ import { Label } from './label';
 import { LoadingButton } from './loading-button';
 import { Button } from './button';
 import { Negocio } from '../../Fetch/negocios';
+import { UsersIcon } from "lucide-react";
 
 interface NegocioModalProps {
   isOpen: boolean;
@@ -121,7 +122,7 @@ export const NegocioModal: React.FC<NegocioModalProps> = ({
       <DialogContent className="sm:max-w-[500px] bg-card max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-primary text-xl flex items-center gap-2">
-            <span className="text-2xl">🏢</span>
+            <span className="text-2xl"><UsersIcon /></span>
             {getTitle()}
           </DialogTitle>
         </DialogHeader>
@@ -136,7 +137,7 @@ export const NegocioModal: React.FC<NegocioModalProps> = ({
 
             <div className="space-y-2">
               <Label htmlFor="nombre" className="text-primary flex items-center gap-1">
-                Nombre del Negocio
+                Nombre del cliente
                 {!isReadonly && <span className="text-error">*</span>}
               </Label>
               <Input
@@ -161,7 +162,7 @@ export const NegocioModal: React.FC<NegocioModalProps> = ({
             {/* Estado del negocio (solo en editar y ver) */}
             {(isEditing || isReadonly) && (
               <div className="space-y-2">
-                <Label className="text-primary">Estado del Negocio</Label>
+                <Label className="text-primary">Estado del cliente</Label>
                 {isReadonly ? (
                   <div className="flex items-center gap-2">
                     {formData.b_activo ? (
@@ -212,7 +213,7 @@ export const NegocioModal: React.FC<NegocioModalProps> = ({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div className="space-y-1">
-                  <Label className="text-secondary">ID del Negocio</Label>
+                  <Label className="text-secondary">ID del cliente</Label>
                   <p className="text-primary font-mono">{negocio.id_negocio}</p>
                 </div>
 

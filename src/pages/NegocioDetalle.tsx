@@ -308,7 +308,7 @@ const NegocioDetalle: React.FC = () => {
                         
                         <div className="space-y-2">
                             <Label htmlFor="username" className="text-primary flex items-center gap-1">
-                                {isEmail ? '📧 Correo Electrónico' : '📱 Teléfono'}
+                                {isEmail ? '<Mail /> Correo Electrónico' : '📱 Teléfono'}
                                 <span className="text-error">*</span>
                             </Label>
                             <Input
