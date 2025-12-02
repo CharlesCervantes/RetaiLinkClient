@@ -9,10 +9,12 @@ import { PageHeader } from "../components/ui/page-header";
 import { InfoCard } from "../components/ui/info-card";
 import { ActionCard } from "../components/ui/action-card";
 import { UserList } from "../components/ui/user-list";
+import { PreguntasNegocioTable } from "../components/ui/preguntas-negocio-table";
 import { StatusBadge } from "../components/ui/status-badge";
 import { LoadingButton } from "../components/ui/loading-button";
 import { type Negocio, getNegocioById } from "../Fetch/negocios";
 import { getUsersByBusiness, Usuario, registerUserByBuisness } from "../Fetch/usuarios";
+import { PreguntaNegocio, getPreguntasByNegocio } from "../Fetch/preguntas"
 import { generatePassword, validateEmail, validateMexicanPhone } from "../utils/passwordGenerator";
 
 import { UsersIcon, UserCheck2, FileQuestion, Edit2Icon } from "lucide-react";
@@ -29,6 +31,11 @@ const NegocioDetalle: React.FC = () => {
     const [mostrarUsuarios, setMostrarUsuarios] = useState(false);
     const [usuarios, setUsuarios] = useState<Usuario[]>([]);
     const [cargandoUsuarios, setCargandoUsuarios] = useState(false);
+
+    const [mostrarPreguntas, setMostrarPreguntas] = useState(false);
+    const [preguntas, setPreguntas] = useState<PreguntaNegocio[]>([]);
+    const [cargandoPreguntas, setCargandoPreguntas] = useState(false);
+
     
     const [modalOpen, setModalOpen] = useState(false);
     const [isEmail, setIsEmail] = useState(true);
@@ -173,6 +180,32 @@ const NegocioDetalle: React.FC = () => {
             setCargandoUsuarios(false);
         }
     };
+
+    const cargarPreguntas = async () => {
+        if(mostrarPreguntas){
+            setMostrarPreguntas(false);
+            return;
+        }
+
+        setCargandoPreguntas(true);
+        try {
+            const negocioId = parseInt(id || '0');
+
+            if (isNaN(negocioId)) {
+                throw new Error('ID del negocio no es válido');
+            }
+
+            const res = await getPreguntasByNegocio(negocioId);
+            if (res.ok) {
+                setPreguntas(res.data || []);
+                setMostrarPreguntas;
+            }
+        } catch (error) {
+            console.error('NegocioDetalle.tsx - cargarPreguntas: ', error);
+        } finally {
+            setCargandoPreguntas(false);
+        }
+    }
 
     const resetForm = () => {
         setFormData({
@@ -486,7 +519,10 @@ const NegocioDetalle: React.FC = () => {
                     {
                         label: 'Preguntas',
                         icon: <FileQuestion />,
-                        onClick: () => {}
+                        onClick: cargarPreguntas,
+                        loading: cargandoPreguntas,
+                        variant: mostrarPreguntas ? 'outline' : 'secondary',
+                        loadingText: 'Cargando Preguntas...'
                     }
                 ]}
             />
@@ -533,6 +569,53 @@ const NegocioDetalle: React.FC = () => {
                             </>
                         )}
                     />
+                </div>
+            )}
+
+            {/* Sección de preguntas */}
+            {mostrarPreguntas && (
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="text-2xl"><FileQuestion/></div>
+                            <div>
+                                <h2 className="text-xl font-semibold text-primary">
+                                    Preguntas de {negocio.vc_nombre}
+                                </h2>
+                                <p className="text-sm text-secondary">
+                                    Gestiona las preguntas asignadas a este negocio
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <PreguntasNegocioTable preguntas={preguntas} loading={cargandoPreguntas} />
+                    
+                    {/* <UserList
+                        title=""
+                        users={usuarios}
+                        loading={cargandoUsuarios && !mostrarUsuarios}
+                        onCreateUser={() => setModalOpen(true)}
+                        creatingUser={isSubmitting}
+                        emptyMessage={`No hay usuarios registrados para ${negocio.vc_nombre}.`}
+                        createUserModal={createUserModal}
+                        renderUserActions={(user) => (
+                            <>
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => {
+                                        // TODO: Implementar editar usuario
+                                        console.log('Editar usuario:', user.id_usuario);
+                                    }}
+                                    className="btn-outline text-xs"
+                                    title="Editar usuario"
+                                >
+                                    <Edit2Icon /> Editar
+                                </Button>
+                            </>
+                        )}
+                    /> */}
                 </div>
             )}
 
