@@ -9,11 +9,15 @@ import { PageHeader } from "../components/ui/page-header";
 import { InfoCard } from "../components/ui/info-card";
 import { ActionCard } from "../components/ui/action-card";
 import { UserList } from "../components/ui/user-list";
+import { PreguntasNegocioTable } from "../components/ui/preguntas-negocio-table";
 import { StatusBadge } from "../components/ui/status-badge";
 import { LoadingButton } from "../components/ui/loading-button";
 import { type Negocio, getNegocioById } from "../Fetch/negocios";
 import { getUsersByBusiness, Usuario, registerUserByBuisness } from "../Fetch/usuarios";
+import { PreguntaNegocio, getPreguntasByNegocio } from "../Fetch/preguntas"
 import { generatePassword, validateEmail, validateMexicanPhone } from "../utils/passwordGenerator";
+
+import { UsersIcon, UserCheck2, FileQuestion, Edit2Icon } from "lucide-react";
 
 const NegocioDetalle: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -27,6 +31,11 @@ const NegocioDetalle: React.FC = () => {
     const [mostrarUsuarios, setMostrarUsuarios] = useState(false);
     const [usuarios, setUsuarios] = useState<Usuario[]>([]);
     const [cargandoUsuarios, setCargandoUsuarios] = useState(false);
+
+    const [mostrarPreguntas, setMostrarPreguntas] = useState(false);
+    const [preguntas, setPreguntas] = useState<PreguntaNegocio[]>([]);
+    const [cargandoPreguntas, setCargandoPreguntas] = useState(false);
+
     
     const [modalOpen, setModalOpen] = useState(false);
     const [isEmail, setIsEmail] = useState(true);
@@ -172,6 +181,32 @@ const NegocioDetalle: React.FC = () => {
         }
     };
 
+    const cargarPreguntas = async () => {
+        if(mostrarPreguntas){
+            setMostrarPreguntas(false);
+            return;
+        }
+
+        setCargandoPreguntas(true);
+        try {
+            const negocioId = parseInt(id || '0');
+
+            if (isNaN(negocioId)) {
+                throw new Error('ID del negocio no es válido');
+            }
+
+            const res = await getPreguntasByNegocio(negocioId);
+            if (res.ok) {
+                setPreguntas(res.data || []);
+                setMostrarPreguntas;
+            }
+        } catch (error) {
+            console.error('NegocioDetalle.tsx - cargarPreguntas: ', error);
+        } finally {
+            setCargandoPreguntas(false);
+        }
+    }
+
     const resetForm = () => {
         setFormData({
             vc_nombre: '',
@@ -306,7 +341,7 @@ const NegocioDetalle: React.FC = () => {
                         
                         <div className="space-y-2">
                             <Label htmlFor="username" className="text-primary flex items-center gap-1">
-                                {isEmail ? '📧 Correo Electrónico' : '📱 Teléfono'}
+                                {isEmail ? '<Mail /> Correo Electrónico' : '📱 Teléfono'}
                                 <span className="text-error">*</span>
                             </Label>
                             <Input
@@ -405,19 +440,19 @@ const NegocioDetalle: React.FC = () => {
     return (
         <div className="space-y-6">
             <PageHeader
-                title={`${negocio.vc_nombre}`}
-                subtitle="Información completa del negocio y gestión de usuarios"
+                title={`${negocio.vc_nombre}:`}
+                subtitle="Información y gestión completa del cliente"
                 breadcrumbs={[
                     { label: "Inicio", onClick: () => navigate('/') },
-                    { label: "Negocios", onClick: () => navigate('/negocios') },
+                    { label: "Clientes", onClick: () => navigate('/negocios') },
                     { label: negocio.vc_nombre }
                 ]}
                 actions={[
                     {
-                        label: "Volver a Negocios",
+                        label: "Volver a Clientes",
                         onClick: () => navigate('/negocios'),
                         variant: "outline",
-                        icon: "🏢"
+                        icon: <UserCheck2/>
                     }
                 ]}
             />
@@ -425,14 +460,16 @@ const NegocioDetalle: React.FC = () => {
             {/* Resumen del negocio */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="custom-card p-6 text-center">
-                    <div className="text-3xl mb-2">🏢</div>
+                    <div className="flex justify-center mb-2">
+                        <UserCheck2 size={48} className="text-primary" />
+                    </div>
                     <div className="text-lg font-semibold text-primary">{negocio.vc_nombre}</div>
-                    <div className="text-sm text-secondary">Nombre del Negocio</div>
+                    <div className="text-sm text-secondary">Nombre del cliente</div>
                 </div>
                 
                 <div className="custom-card p-6 text-center">
                     <div className="text-2xl font-bold text-info mb-2">#{negocio.id_negocio}</div>
-                    <div className="text-sm text-secondary">ID del Negocio</div>
+                    <div className="text-sm text-secondary">ID del cliente</div>
                 </div>
                 
                 <div className="custom-card p-6 text-center">
@@ -476,29 +513,16 @@ const NegocioDetalle: React.FC = () => {
                         onClick: cargarUsuarios,
                         loading: cargandoUsuarios,
                         variant: mostrarUsuarios ? 'outline' : 'secondary',
-                        icon: "👥",
+                        icon: <UsersIcon/>,
                         loadingText: 'Cargando usuarios...',
-                        description: mostrarUsuarios ? 'Ocultar lista de usuarios' : 'Ver todos los usuarios registrados'
                     },
                     {
-                        label: 'Editar Información',
-                        onClick: () => {
-                            // TODO: Implementar edición inline o modal
-                            console.log('Editar negocio:', negocio.id_negocio);
-                        },
-                        variant: 'outline',
-                        icon: "✏️",
-                        description: 'Modificar datos del negocio'
-                    },
-                    {
-                        label: 'Ver Reportes',
-                        onClick: () => {
-                            // TODO: Implementar reportes
-                            console.log('Ver reportes del negocio:', negocio.id_negocio);
-                        },
-                        variant: 'outline',
-                        icon: "📊",
-                        description: 'Generar reportes y estadísticas'
+                        label: 'Preguntas',
+                        icon: <FileQuestion />,
+                        onClick: cargarPreguntas,
+                        loading: cargandoPreguntas,
+                        variant: mostrarPreguntas ? 'outline' : 'secondary',
+                        loadingText: 'Cargando Preguntas...'
                     }
                 ]}
             />
@@ -508,7 +532,7 @@ const NegocioDetalle: React.FC = () => {
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="text-2xl">👥</div>
+                            <div className="text-2xl"><UsersIcon/></div>
                             <div>
                                 <h2 className="text-xl font-semibold text-primary">
                                     Usuarios de {negocio.vc_nombre}
@@ -540,11 +564,58 @@ const NegocioDetalle: React.FC = () => {
                                     className="btn-outline text-xs"
                                     title="Editar usuario"
                                 >
-                                    ✏️ Editar
+                                    <Edit2Icon /> Editar
                                 </Button>
                             </>
                         )}
                     />
+                </div>
+            )}
+
+            {/* Sección de preguntas */}
+            {mostrarPreguntas && (
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="text-2xl"><FileQuestion/></div>
+                            <div>
+                                <h2 className="text-xl font-semibold text-primary">
+                                    Preguntas de {negocio.vc_nombre}
+                                </h2>
+                                <p className="text-sm text-secondary">
+                                    Gestiona las preguntas asignadas a este negocio
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <PreguntasNegocioTable preguntas={preguntas} loading={cargandoPreguntas} />
+                    
+                    {/* <UserList
+                        title=""
+                        users={usuarios}
+                        loading={cargandoUsuarios && !mostrarUsuarios}
+                        onCreateUser={() => setModalOpen(true)}
+                        creatingUser={isSubmitting}
+                        emptyMessage={`No hay usuarios registrados para ${negocio.vc_nombre}.`}
+                        createUserModal={createUserModal}
+                        renderUserActions={(user) => (
+                            <>
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => {
+                                        // TODO: Implementar editar usuario
+                                        console.log('Editar usuario:', user.id_usuario);
+                                    }}
+                                    className="btn-outline text-xs"
+                                    title="Editar usuario"
+                                >
+                                    <Edit2Icon /> Editar
+                                </Button>
+                            </>
+                        )}
+                    /> */}
                 </div>
             )}
 

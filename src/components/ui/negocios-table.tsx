@@ -5,6 +5,7 @@ import { LoadingButton } from './loading-button';
 import { Button } from './button';
 import { Card, CardContent } from './card';
 import { Negocio } from '../../Fetch/negocios';
+import { UsersIcon, GlassesIcon, Edit2Icon, Trash2Icon } from "lucide-react"
 
 interface NegociosTableProps {
   negocios: Negocio[];
@@ -85,12 +86,12 @@ export const NegociosTable: React.FC<NegociosTableProps> = ({
     return (
       <Card className="custom-card">
         <CardContent className="flex flex-col items-center justify-center py-12">
-          <div className="text-6xl mb-4">🏢</div>
+          <div className="text-6xl mb-4"><UsersIcon /></div>
           <h3 className="text-xl font-semibold text-primary mb-2">
-            No hay negocios
+            No hay clientes
           </h3>
           <p className="text-secondary text-center max-w-md">
-            No se encontraron negocios. Crea el primero para comenzar.
+            No se encontraron clientes. Crea el primero para comenzar.
           </p>
         </CardContent>
       </Card>
@@ -130,7 +131,7 @@ export const NegociosTable: React.FC<NegociosTableProps> = ({
                         {negocio.vc_nombre}
                       </span>
                       <span className="text-xs text-secondary">
-                        Negocio #{negocio.id_negocio}
+                        Cliente #{negocio.id_negocio}
                       </span>
                     </div>
                   </TableCell>
@@ -169,7 +170,7 @@ export const NegociosTable: React.FC<NegociosTableProps> = ({
                           className="h-8 w-8 p-0 hover:bg-info hover:text-white transition-colors"
                           title="Ver detalles"
                         >
-                          👁️
+                          <GlassesIcon />
                         </Button>
                       )}
                       
@@ -181,7 +182,7 @@ export const NegociosTable: React.FC<NegociosTableProps> = ({
                           className="h-8 w-8 p-0 hover:bg-warning hover:text-black transition-colors"
                           title="Editar"
                         >
-                          ✏️
+                          <Edit2Icon />
                         </Button>
                       )}
                       
@@ -195,7 +196,7 @@ export const NegociosTable: React.FC<NegociosTableProps> = ({
                           className="h-8 w-8 p-0 hover:bg-error hover:text-white transition-colors"
                           title="Eliminar"
                         >
-                          🗑️
+                          <Trash2Icon />
                         </LoadingButton>
                       )}
                     </div>

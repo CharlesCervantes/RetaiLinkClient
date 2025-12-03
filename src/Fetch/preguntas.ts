@@ -13,6 +13,19 @@ export interface Pregunta {
     b_estatus?: boolean; // si es true la pregunta esta activa, si es false la pregunta esta inactiva
 }
 
+export interface PreguntaNegocio {
+    id_pregunta: number;
+    id_negocio: number;
+    dc_precio: number;
+    b_activo: number;
+    vc_pregunta: string;
+    vc_tipo: string;
+    b_photo: number;
+    b_required: number;
+    b_estatus: boolean;
+    dt_registro?: number;
+}
+
 export interface ApiResponse<T> {
     ok: boolean;
     data: T | null;
@@ -197,3 +210,27 @@ export const getPreguntasByEvidencia = async (evidencia: boolean): Promise<ApiRe
         };
     }
 };
+
+// Obtener preguntas por negocio
+export const getPreguntasByNegocio = async(id_negocio: number): Promise<ApiResponse<PreguntaNegocio[]>> => {
+    try {
+        const response = await fetch(`${API_URL}/superadmin/get-preguntas-negocio/${id_negocio}`, {
+            method: 'GET',
+            headers: getAuthHeaders(),
+        });
+
+         if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Error al obtener preguntas por megocio');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error en getPreguntasByEvidencia:', error);
+        return {
+            ok: false,
+            data: null,
+            message: error instanceof Error ? error.message : 'Error desconocido'
+        };
+    }
+}

@@ -1,20 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
 import { PageHeader } from '../components/ui/page-header';
 import { NegociosTable } from '../components/ui/negocios-table';
 import { NegocioModal } from '../components/ui/negocio-modal';
-import { ActionCard } from '../components/ui/action-card';
 import { InfoCard } from '../components/ui/info-card';
-import { LoadingButton } from '../components/ui/loading-button';
-import { 
-  Negocio, 
-  getAllNegocios, 
-  createNegocio, 
-  updateNegocio, 
-  deleteNegocio
-} from '../Fetch/negocios';
+import { Negocio, getAllNegocios, createNegocio, updateNegocio, deleteNegocio } from '../Fetch/negocios';
+import { UsersIcon } from "lucide-react";
 
 const Negocios: React.FC = () => {
   const navigate = useNavigate();
@@ -23,10 +14,6 @@ const Negocios: React.FC = () => {
   const [negocios, setNegocios] = useState<Negocio[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Estados de búsqueda y filtros
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searching, setSearching] = useState(false);
 
   // Estados del modal
   const [modalOpen, setModalOpen] = useState(false);
@@ -70,20 +57,6 @@ const Negocios: React.FC = () => {
       setLoading(false);
     }
   }, []);
-
-  // Búsqueda con debounce
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (searchTerm.trim()) {
-        setSearching(true);
-        loadNegocios(searchTerm).finally(() => setSearching(false));
-      } else if (searchTerm === '') {
-        loadNegocios();
-      }
-    }, 300);
-
-    return () => clearTimeout(timeoutId);
-  }, [searchTerm, loadNegocios]);
 
   // Cargar datos iniciales
   useEffect(() => {
@@ -141,7 +114,7 @@ const Negocios: React.FC = () => {
 
   // Eliminar negocio
   const handleDelete = async (id: number) => {
-    if (!confirm('¿Estás seguro de que deseas eliminar este negocio?')) {
+    if (!confirm('¿Estás seguro de que deseas eliminar este cliente?')) {
       return;
     }
 
@@ -152,20 +125,14 @@ const Negocios: React.FC = () => {
       if (response.ok) {
         await loadNegocios();
       } else {
-        alert(response.message || 'Error al eliminar negocio');
+        alert(response.message || 'Error al eliminar cliente');
       }
     } catch (error) {
-      console.error('Error eliminando negocio:', error);
-      alert('Error de conexión al eliminar negocio');
+      console.error('Error eliminando cliente:', error);
+      alert('Error de conexión al eliminar cliente');
     } finally {
       setDeletingId(undefined);
     }
-  };
-
-  // Limpiar búsqueda
-  const handleClearSearch = () => {
-    setSearchTerm('');
-    loadNegocios();
   };
 
   if (error) {
@@ -199,18 +166,18 @@ const Negocios: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <PageHeader
-        title="Negocios"
-        subtitle={`Gestiona y administra todos los negocios del sistema`}
+        title="Clientes"
+        subtitle={`Gestiona y administra todos los clientes del sistema`}
         breadcrumbs={[
           { label: "Inicio", onClick: () => navigate('/') },
-          { label: "Negocios" }
+          { label: "Clientes" }
         ]}
         actions={[
           {
-            label: "Nuevo Negocio",
+            label: "Nuevo Cliente",
             onClick: handleCreateNew,
             variant: "default",
-            icon: "🏢"
+            icon: <UsersIcon />
           }
         ]}
       />
@@ -233,51 +200,8 @@ const Negocios: React.FC = () => {
         </div>
       </div>
 
-      {/* Búsqueda y filtros */}
-      <ActionCard
-        title="Búsqueda y Filtros"
-        subtitle="Encuentra negocios rápidamente"
-        actions={[]}
-      >
-        <div className="flex gap-3 items-end">
-          <div className="flex-1">
-            <Input
-              placeholder="Buscar por nombre del negocio..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="custom-input"
-            />
-          </div>
-          
-          {searchTerm && (
-            <Button
-              variant="outline"
-              onClick={handleClearSearch}
-              className="btn-outline"
-            >
-              ✨ Limpiar
-            </Button>
-          )}
-          
-          <LoadingButton
-            onClick={() => loadNegocios()}
-            loading={loading}
-            variant="secondary"
-            className="btn-secondary"
-          >
-            🔄 Actualizar
-          </LoadingButton>
-        </div>
-      </ActionCard>
-
       {/* Tabla de negocios */}
       <div className="space-y-4">
-        {searching && (
-          <div className="text-center py-4">
-            <div className="loading-spinner mx-auto mb-2"></div>
-            <p className="text-secondary">Buscando negocios...</p>
-          </div>
-        )}
         
         <NegociosTable
           negocios={negocios}
