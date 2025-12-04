@@ -1,14 +1,15 @@
-import logo from "../assets/promotorialogotipo_positivo.png";
-import { useAuthStore } from "../store/authStore";
-import { Button } from "../components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Input } from "../components/ui/input";
-import { loginUser } from "../Fetch/login";
 import { useState } from "react";
 import { toast } from "sonner";
+
+import { useAuthStore } from "../store/authStore";
+import { loginUser } from "../Fetch/login";
+
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
 import DebugRegisterModal from "../components/DebugRegisterModal";
 
-import { Link } from "react-router-dom";
+import logo from "../assets/promotorialogotipo_positivo.png";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -126,12 +127,9 @@ export default function Login() {
 
               {/* Olvidé mi contraseña */}
               <div className="text-center text-xs text-gray-500 mt-8">
-                <Link
-                  to="/restore-pwd"
-                  className="text-blue-600 hover:underline"
-                >
+                <a href="#" className="text-blue-600 hover:underline">
                   ¿Olvidaste tu contraseña?
-                </Link>
+                </a>
               </div>
 
               {/* Separador */}
@@ -153,7 +151,7 @@ export default function Login() {
                 </p>
                 <Button
                   variant="outline"
-                  className="w-fullhover:text-white"
+                  className="w-full border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white"
                   onClick={() =>
                     toast.error("Redirigir a página de solicitud de prueba")
                   }
@@ -161,6 +159,17 @@ export default function Login() {
                   Solicita tu prueba gratuita
                 </Button>
               </div>
+
+              {/* Botón Debug (solo desarrollo) */}
+              {process.env.NODE_ENV === "development" && (
+                <Button
+                  onClick={() => setShowDebugModal(true)}
+                  variant="outline"
+                  className="w-full text-sm text-gray-600 border-dashed"
+                >
+                  🔧 Registrar Usuario Debug
+                </Button>
+              )}
             </div>
 
             {/* Footer opcional */}

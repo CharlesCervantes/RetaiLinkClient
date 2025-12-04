@@ -33,7 +33,7 @@
     "date-fns": "4.1.0",
     "lucide-react": "^0.477.0",
     "next-themes": "^0.4.6",
-    "react": "19.0.0",
+    "react": "19.2.1",
     "react-day-picker": "9.11.1",
     "react-dom": "19.0.0",
     "react-router-dom": "7.2.0",
