@@ -127,9 +127,12 @@ export default function Login() {
 
               {/* Olvidé mi contraseña */}
               <div className="text-center text-xs text-gray-500 mt-8">
-                <a href="#" className="text-blue-600 hover:underline">
+                <button
+                  onClick={() => navigate("/restore-pwd")}
+                  className="text-blue-600 hover:underline"
+                >
                   ¿Olvidaste tu contraseña?
-                </a>
+                </button>
               </div>
 
               {/* Separador */}
