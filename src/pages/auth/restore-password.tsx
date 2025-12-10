@@ -3,7 +3,7 @@ import { Button } from "../../components/ui/button";
 import { toast } from "sonner";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Input } from "../../components/ui/input";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   requestPasswordReset,
   resetPassword,
@@ -70,15 +70,17 @@ export default function RestorePassword() {
 
     setIsLoading(true);
     try {
-      await resetPassword(token!, newPassword);
+      const response = await resetPassword(token!, newPassword);
+      toast.success(response.message || "Contraseña actualizada exitosamente");
       setResetSuccess(true);
+
       // Redirigir al login después de 3 segundos
       setTimeout(() => {
         navigate("/login");
       }, 3000);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      toast.error("Error al restablecer la contraseña");
+      toast.error(error.message || "Error al restablecer la contraseña");
     } finally {
       setIsLoading(false);
     }
