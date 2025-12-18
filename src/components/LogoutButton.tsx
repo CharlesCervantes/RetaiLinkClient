@@ -1,25 +1,34 @@
-import { useAuthStore } from "../store/authStore";
-import { Button } from "../components/ui/button";
-import { useNavigate } from "react-router-dom";
 import { LogOut } from "lucide-react";
+import { useAuthStore } from "../store/authStore";
+import { useNavigate } from "react-router-dom";
+import { cn } from "../lib/utils";
 
-export default function LogoutButton() {
+interface LogoutButtonProps {
+  isExpanded?: boolean;
+}
+
+export default function LogoutButton({ isExpanded = true }: LogoutButtonProps) {
   const logout = useAuthStore((state) => state.logout);
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    logout(); // Limpia el estado
-    navigate("/login"); // Redirige al login
+    logout();
+    navigate("/login");
   };
 
   return (
-    <Button
+    <button
       onClick={handleLogout}
-      className="w-full flex items-center gap-2 mt-4 bg-gray-200 text-black"
-      variant="destructive"
+      className={cn(
+        "flex items-center gap-3 p-3 rounded-lg transition-all duration-200",
+        "hover:bg-destructive/10 hover:text-destructive w-full",
+        "text-sm font-medium",
+        !isExpanded && "justify-center",
+      )}
+      title={!isExpanded ? "Cerrar sesión" : undefined}
     >
-      <LogOut className="w-4 h-4" />
-      Cerrar sesión
-    </Button>
+      <LogOut className="w-5 h-5 flex-shrink-0" />
+      {isExpanded && <span>Cerrar sesión</span>}
+    </button>
   );
 }
