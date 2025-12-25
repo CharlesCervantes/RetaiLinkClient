@@ -110,6 +110,27 @@ export interface FiltersConfig {
 }
 
 // ============================================================================
+// CONFIGURACIÓN RESPONSIVE
+// ============================================================================
+
+export interface ResponsiveConfig {
+  /** Habilitar modo responsive automático */
+  enabled?: boolean;
+  /**
+   * Ancho mínimo estimado por columna en píxeles
+   * Se usa para calcular cuántas columnas caben
+   * Default: 150
+   */
+  minColumnWidth?: number;
+  /**
+   * IDs de columnas que siempre serán visibles (prioritarias)
+   * Las columnas no listadas aquí se colapsarán si no caben
+   * Por defecto: primera columna + acciones
+   */
+  priorityColumns?: string[];
+}
+
+// ============================================================================
 // CONFIGURACIÓN DE SELECCIÓN DE FILAS
 // ============================================================================
 
@@ -168,6 +189,8 @@ export interface DataTableProps<TData, TValue = unknown> {
   filters?: FiltersConfig;
   /** Configuración de selección de filas */
   rowSelection?: RowSelectionConfig;
+  /** Configuración responsive para móvil */
+  responsive?: ResponsiveConfig;
   /** Estado inicial de la tabla */
   initialState?: DataTableInitialState;
   /** Mostrar toggle de visibilidad de columnas */
