@@ -109,7 +109,7 @@ function ExpandButton({ isExpanded, onClick }: ExpandButtonProps) {
 }
 
 // ============================================================================
-// COMPONENTE DE FILA EXPANDIDA (subtabla con mismo estilo)
+// COMPONENTE DE FILA EXPANDIDA (formato vertical para responsive)
 // ============================================================================
 
 interface ExpandedRowContentProps<TData> {
@@ -123,66 +123,53 @@ function ExpandedRowContent<TData>({
 }: ExpandedRowContentProps<TData>) {
   return (
     <div className="px-4 py-3 bg-muted/20">
-      <div className="rounded-md border overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              {collapsedColumns.map((column) => {
-                const columnId =
-                  column.id || (column as { accessorKey?: string }).accessorKey;
-                if (!columnId) return null;
+      <div className="rounded-md border overflow-hidden bg-background">
+        <div className="divide-y">
+          {collapsedColumns.map((column) => {
+            const columnId =
+              column.id || (column as { accessorKey?: string }).accessorKey;
+            if (!columnId) return null;
 
-                // Obtener el header
-                let headerContent: React.ReactNode = columnId;
-                if (typeof column.header === "string") {
-                  headerContent = column.header;
-                }
+            // Obtener el header
+            let headerContent: React.ReactNode = columnId;
+            if (typeof column.header === "string") {
+              headerContent = column.header;
+            }
 
-                return (
-                  <TableHead key={columnId} className="bg-muted/50 h-9 text-xs">
-                    {headerContent}
-                  </TableHead>
-                );
-              })}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow className="hover:bg-muted/50">
-              {collapsedColumns.map((column) => {
-                const columnId =
-                  column.id || (column as { accessorKey?: string }).accessorKey;
-                if (!columnId) return null;
+            // Renderizar la celda manualmente
+            const cellDef = column.cell;
+            let cellContent: React.ReactNode;
 
-                // Renderizar la celda manualmente
-                const cellDef = column.cell;
-                let cellContent: React.ReactNode;
+            if (typeof cellDef === "function") {
+              try {
+                cellContent = cellDef({
+                  row,
+                  column: { id: columnId } as any,
+                  getValue: () => row.getValue(columnId),
+                  renderValue: () => row.getValue(columnId),
+                  cell: {} as any,
+                  table: {} as any,
+                } as any);
+              } catch {
+                cellContent = row.getValue(columnId) as React.ReactNode;
+              }
+            } else {
+              cellContent = row.getValue(columnId) as React.ReactNode;
+            }
 
-                if (typeof cellDef === "function") {
-                  try {
-                    cellContent = cellDef({
-                      row,
-                      column: { id: columnId } as any,
-                      getValue: () => row.getValue(columnId),
-                      renderValue: () => row.getValue(columnId),
-                      cell: {} as any,
-                      table: {} as any,
-                    } as any);
-                  } catch {
-                    cellContent = row.getValue(columnId) as React.ReactNode;
-                  }
-                } else {
-                  cellContent = row.getValue(columnId) as React.ReactNode;
-                }
-
-                return (
-                  <TableCell key={columnId} className="py-3">
-                    {cellContent}
-                  </TableCell>
-                );
-              })}
-            </TableRow>
-          </TableBody>
-        </Table>
+            return (
+              <div
+                key={columnId}
+                className="flex items-center gap-4 px-4 py-3 hover:bg-muted/50 transition-colors"
+              >
+                <span className="text-sm font-medium text-muted-foreground min-w-[120px] shrink-0">
+                  {headerContent}
+                </span>
+                <div className="text-sm flex-1">{cellContent}</div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

@@ -457,20 +457,24 @@ El DataTable detecta automáticamente si las columnas no caben en la pantalla y 
 | ☐ | Cliente | Estado | ⋮ | ➕ |
 |---|---------|--------|---|---|
 
-**Al expandir (➕ → ➖):**
+**Al expandir (➕ → ➖) - Formato vertical:**
 
 | ☐ | Cliente | Estado | ⋮ | ➖ |
 |---|---------|--------|---|---|
-|   | **Subtabla:**                |
-|   | Contacto | Usuarios | ...   |
-|   | email... | 45       | ...   |
+|   | ┌─────────────────────────┐   |
+|   | │ Contacto    │ email... │   |
+|   | ├─────────────┼──────────┤   |
+|   | │ Usuarios    │ 45       │   |
+|   | ├─────────────┼──────────┤   |
+|   | │ Fecha       │ 12/01/25 │   |
+|   | └─────────────────────────┘   |
 
 ### Características
 
 - ✅ **100% automático** - Se adapta al redimensionar la ventana
 - ✅ **Sin breakpoints fijos** - Funciona en cualquier tamaño
 - ✅ **Columnas prioritarias** - Define cuáles siempre deben verse
-- ✅ **Subtabla con mismo estilo** - Consistencia visual
+- ✅ **Formato vertical** - Sin scroll horizontal en la expansión
 - ✅ **Tooltip en el botón** - "Ver más" / "Ver menos"
 
 ---
@@ -605,33 +609,31 @@ className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full w
 // Sin tooltip - eliminar el <span> del tooltip
 ```
 
-### Personalizar la subtabla expandida
+### Personalizar la expansión vertical
 
-La subtabla se renderiza en `ExpandedRowContent`:
+La expansión se renderiza en `ExpandedRowContent` con formato vertical (label: valor):
 
 ```tsx
 // Ubicación: DataTable.tsx, línea ~110
 
 function ExpandedRowContent<TData>({ row, collapsedColumns }) {
   return (
-    <div className="px-4 py-3 bg-muted/20">  {/* ← Fondo de la subtabla */}
-      <div className="rounded-md border overflow-hidden">  {/* ← Borde */}
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="bg-muted/50 h-9 text-xs">  {/* ← Estilo header */}
-                ...
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow className="hover:bg-muted/50">  {/* ← Hover en fila */}
-              <TableCell className="py-3">  {/* ← Padding de celdas */}
-                ...
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
+    <div className="px-4 py-3 bg-muted/20">  {/* ← Fondo del contenedor */}
+      <div className="rounded-md border overflow-hidden bg-background">  {/* ← Card */}
+        <div className="divide-y">  {/* ← Separadores entre filas */}
+          {collapsedColumns.map((column) => (
+            <div className="flex items-center gap-4 px-4 py-3 hover:bg-muted/50">
+              {/* Label */}
+              <span className="text-sm font-medium text-muted-foreground min-w-[120px]">
+                {headerContent}
+              </span>
+              {/* Valor */}
+              <div className="text-sm flex-1">
+                {cellContent}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -641,14 +643,24 @@ function ExpandedRowContent<TData>({ row, collapsedColumns }) {
 **Ejemplos de personalización:**
 
 ```tsx
-// Subtabla con borde coloreado
-<div className="border-l-4 border-primary pl-4">
+// Con borde lateral coloreado
+<div className="border-l-4 border-primary rounded-md ...">
 
 // Fondo más oscuro
 <div className="bg-muted/40">
 
-// Sin borde redondeado
-<div className="border-t">
+// Labels más anchos
+<span className="min-w-[150px]">
+
+// Sin hover en filas
+className="flex items-center gap-4 px-4 py-3"  // quitar hover:bg-muted/50
+
+// Estilo de lista con iconos
+<div className="flex items-center gap-2">
+  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+  <span>{headerContent}:</span>
+  <span>{cellContent}</span>
+</div>
 ```
 
 ### Personalizar la paginación
@@ -730,7 +742,10 @@ Si usas Tailwind, estos son los colores principales usados:
 | Botón expandir hover | `hover:bg-emerald-50` | Fondo al pasar mouse |
 | Header tabla | `bg-muted/50` | Fondo de headers |
 | Fila hover | `hover:bg-muted/50` | Hover en filas |
-| Subtabla fondo | `bg-muted/20` | Fondo de expandido |
+| Expansión fondo | `bg-muted/20` | Fondo contenedor expandido |
+| Expansión card | `bg-background` | Fondo de la card vertical |
+| Expansión separador | `divide-y` | Líneas entre items |
+| Expansión label | `text-muted-foreground` | Color del label |
 | Skeleton | Componente de shadcn | Estado de carga |
 | Borde tabla | `border` | Borde general |
 | Tooltip fondo | `bg-gray-900` | Fondo del tooltip |
