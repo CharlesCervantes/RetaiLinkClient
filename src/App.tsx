@@ -6,11 +6,9 @@ import { Toaster } from "./components/ui/sonner";
 export default function App() {
   const { actualTheme } = useTheme();
 
-  // Aplicar clase del tema al HTML root para compatibilidad completa
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", actualTheme);
 
-    // Agregar meta tag para tema en navegadores móviles
     const metaTheme = document.querySelector('meta[name="theme-color"]');
     if (metaTheme) {
       metaTheme.setAttribute(
