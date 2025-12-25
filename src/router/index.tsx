@@ -8,7 +8,7 @@ import ProductList from "../pages/ProductList";
 import Settings from "../pages/Settings";
 import Login from "../pages/Login";
 import Home from "../pages/Home";
-import NegociosList from "../pages/Negocios";
+import NegociosList from "../pages/Cliente";
 import NegocioDetalle from "../pages/NegocioDetalle";
 import UsuariosTabla from "../pages/UsuariosTabla";
 import Establecimientos from "../pages/Establecimientos";
@@ -38,7 +38,7 @@ export default function AppRouter() {
           <Route path="settings" element={<Settings />} />
           <Route path="productList" element={<ProductList />} />
           <Route path="createProduct" element={<CreateProduct />} />
-          <Route path="negocios" element={<NegociosList />} />
+          <Route path="clientes" element={<NegociosList />} />
           <Route path="negocios/:id" element={<NegocioDetalle />} />
           <Route path="negocios/:id/usuarios" element={<UsuariosTabla />} />
           <Route path="establecimientos" element={<Establecimientos />} />

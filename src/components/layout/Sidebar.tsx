@@ -13,6 +13,7 @@ import {
   FileQuestionIcon,
   MoreVertical,
   ChevronLeft,
+  HomeIcon,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import LogoutButton from "../LogoutButton";
@@ -50,7 +51,13 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
 
   const menuItems = [
     {
-      route: "/negocios",
+      route: "/",
+      icon: HomeIcon,
+      label: "Inicio",
+      show: true,
+    },
+    {
+      route: "/clientes",
       icon: FactoryIcon,
       label: "Clientes",
       show: user?.i_rol === 1,
@@ -187,41 +194,6 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
         )}
       </div>
 
-      {/* Sidebar Mobile - FIXED */}
-      {/*<SidebarUI
-        className={cn(
-          "lg:hidden fixed inset-y-0 left-0 z-50 w-64 flex flex-col transition-transform duration-300 ease-in-out",
-          isOpen ? "translate-x-0" : "-translate-x-full",
-        )}
-        style={{
-          backgroundColor: "var(--sidebar-bg)",
-          color: "var(--sidebar-fg)",
-          borderRight: "1px solid var(--border)",
-        }}
-      >
-        <SidebarHeader
-          className="p-4 flex-shrink-0"
-          style={{ borderBottom: "1px solid var(--border)" }}
-        >
-          <div className="flex items-center justify-between">
-            <img src={logo} alt="Logo" className="h-16" />
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-accent rounded-lg transition-colors"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-          </div>
-        </SidebarHeader>
-
-        <SidebarContent className="flex-1 p-2 flex flex-col justify-between overflow-y-auto">
-          <MenuContent isMobile={true} />
-        </SidebarContent>
-
-        <div className="p-4 border-t border-border flex-shrink-0">
-          <p className="text-sm text-secondary">© 2025 Promotoria</p>
-        </div>
-      </SidebarUI>*/}
       <div
         className={cn(
           "lg:hidden fixed inset-y-0 left-0 z-50 w-64 flex flex-col transition-transform duration-300 ease-in-out shadow-2xl",
