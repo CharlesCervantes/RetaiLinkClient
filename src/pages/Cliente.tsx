@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   Building2,
@@ -26,7 +26,11 @@ import {
 } from "../components/ui/dropdown-menu";
 
 // Importar componentes del DataTable
-import { DataTable, DataTableColumnHeader, FilterConfig } from "../components";
+import {
+  DataTable,
+  DataTableColumnHeader,
+  FilterConfig,
+} from "../components/ui/datatble";
 
 // ============================================================================
 // TIPOS E INTERFACES
@@ -453,6 +457,12 @@ export default function ClientesPage() {
               enableExcel: true,
               fileName: "clientes",
               sheetName: "Clientes",
+            }}
+            // Configuración responsive automática
+            responsive={{
+              enabled: true,
+              minColumnWidth: 150, // Ancho mínimo por columna
+              priorityColumns: ["vc_nombre", "b_activo"], // Columnas prioritarias
             }}
             // Configuración de selección de filas
             rowSelection={{
