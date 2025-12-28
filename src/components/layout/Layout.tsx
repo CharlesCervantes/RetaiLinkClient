@@ -1,6 +1,5 @@
 import { SidebarProvider } from "../../components/ui/sidebar";
 import { Outlet } from "react-router-dom";
-import { Toaster } from "../toaster";
 import Sidebar from "./Sidebar";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
