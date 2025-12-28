@@ -1,19 +1,30 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import {
   ArrowLeft,
   Building2,
   Mail,
-  Phone,
   FileText,
   Save,
-  X,
   AlertCircle,
 } from "lucide-react";
 
-export default function NuevoCliente() {
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
+import { MensajeConfirmacion } from "../components/mensajeConfirmaacion";
 
+type FormErrors = {
+  [key: string]: string | null;
+};
+
+
+export default function NuevoCliente() {
+  // --------------- Instanciamiento de librerias
+  const navigate = useNavigate();
+
+  // --------------- States
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [loading, setLoading] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [formData, setFormData] = useState({
     vc_nombre: "",
     vc_rfc: "",
@@ -25,41 +36,25 @@ export default function NuevoCliente() {
     b_activo: true,
   });
 
-  // Formatear RFC mexicano (solo mayúsculas y sin espacios)
-  const formatRFC = (value) => {
-    // Convertir a mayúsculas y eliminar espacios y caracteres especiales
-    return value
-      .toUpperCase()
-      .replace(/[^A-Z0-9]/g, "")
-      .substring(0, 13);
-  };
+  const haveData = Boolean(
+    formData.vc_nombre.trim() ||
+    formData.vc_rfc.trim() ||
+    formData.vc_email.trim() ||
+    formData.vc_telefono.trim() ||
+    formData.vc_direccion.trim() ||
+    formData.vc_ciudad.trim() ||
+    formData.vc_observaciones.trim()
+  );
 
-  // Validar RFC mexicano
-  const validateRFC = (rfc) => {
-    // RFC persona moral: 12 caracteres (3 letras + 6 números fecha + 3 alfanuméricos)
-    // RFC persona física: 13 caracteres (4 letras + 6 números fecha + 3 alfanuméricos)
-    const rfcPattern = /^[A-ZÑ&]{3,4}[0-9]{6}[A-Z0-9]{3}$/;
-    return rfcPattern.test(rfc) && (rfc.length === 12 || rfc.length === 13);
-  };
+  // --------------- handlers
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target;
 
-  // Validar email
-  const validateEmail = (email) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
+    let finalValue: string | boolean =
+      type === "checkbox" && e.target instanceof HTMLInputElement
+        ? e.target.checked
+        : value;
 
-  // Validar teléfono mexicano
-  const validatePhone = (phone) => {
-    const cleaned = phone.replace(/[\s()-+]/g, "");
-    // Acepta números de 10 dígitos o +52 seguido de 10 dígitos
-    return /^(\+?52)?[0-9]{10}$/.test(cleaned);
-  };
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-
-    let finalValue = type === "checkbox" ? checked : value;
-
-    // Formatear RFC automáticamente
     if (name === "vc_rfc") {
       finalValue = formatRFC(value);
     }
@@ -69,7 +64,6 @@ export default function NuevoCliente() {
       [name]: finalValue,
     }));
 
-    // Limpiar error del campo cuando el usuario empieza a escribir
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
@@ -78,29 +72,79 @@ export default function NuevoCliente() {
     }
   };
 
-  const validateForm = () => {
-    const newErrors = {};
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-    // Nombre requerido
+    if (!validateForm()) {
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      console.log("Cliente creado:", formData);
+      toast.success("Cliente creado exitosamente");
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Error al crear cliente");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancel = () => {
+    if (haveData) {
+      setShowConfirm(true);
+    } else {
+      navigate('/clientes');
+    }
+  };
+
+  const handleConfirmCancel = () => {
+    setShowConfirm(false);
+    navigate('/clientes');
+  };
+
+ // --------------- Funciones de utilidad 
+  const formatRFC = (value: string) => {
+    return value
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, "")
+      .substring(0, 13);
+  };
+
+  const validateRFC = (rfc: string) => {
+    const rfcPattern = /^[A-ZÑ&]{3,4}[0-9]{6}[A-Z0-9]{3}$/;
+    return rfcPattern.test(rfc) && (rfc.length === 12 || rfc.length === 13);
+  };
+
+  const validateEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const validatePhone = (phone: string) => {
+    const cleaned = phone.replace(/[\s()-+]/g, "");
+    return /^(\+?52)?[0-9]{10}$/.test(cleaned);
+  };
+
+  const validateForm = () => {
+    const newErrors: FormErrors = {};
+
     if (!formData.vc_nombre.trim()) {
       newErrors.vc_nombre = "El nombre es requerido";
     }
 
-    // RFC requerido y válido
-    if (!formData.vc_rfc.trim()) {
-      newErrors.vc_rfc = "El RFC es requerido";
-    } else if (!validateRFC(formData.vc_rfc)) {
+    if (formData.vc_rfc.trim() && !validateRFC(formData.vc_rfc)) {
       newErrors.vc_rfc = "RFC inválido (12-13 caracteres)";
     }
 
-    // Email requerido y válido
     if (!formData.vc_email.trim()) {
       newErrors.vc_email = "El email es requerido";
     } else if (!validateEmail(formData.vc_email)) {
       newErrors.vc_email = "Email inválido";
     }
 
-    // Teléfono requerido y válido
     if (!formData.vc_telefono.trim()) {
       newErrors.vc_telefono = "El teléfono es requerido";
     } else if (!validatePhone(formData.vc_telefono)) {
@@ -111,62 +155,55 @@ export default function NuevoCliente() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      // Simular llamada a API
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      console.log("Cliente creado:", formData);
-      alert("Cliente creado exitosamente");
-
-      // Aquí irías a la página de clientes
-      // navigate('/clientes');
-    } catch (error) {
-      console.error("Error:", error);
-      alert("Error al crear cliente");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCancel = () => {
-    if (confirm("¿Deseas cancelar? Se perderán los cambios.")) {
-      // navigate('/clientes');
-      console.log("Cancelado");
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center gap-4">
-          <button
-            onClick={handleCancel}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <ArrowLeft size={20} className="text-gray-600" />
-          </button>
-          <div>
-            <h1 className="text-2xl font-semibold text-gray-900">
-              Nuevo Cliente
-            </h1>
-            <p className="text-sm text-gray-500 mt-1">
-              Completa la información del cliente
-            </p>
+    <div className="min-h-screen bg-gray-50">
+      <div className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
+        <div className="max-w-4xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={handleCancel}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <ArrowLeft size={20} className="text-gray-600" />
+              </button>
+              <div>
+                <h1 className="text-xl font-semibold text-gray-900">
+                  Nuevo Cliente
+                </h1>
+                <p className="text-sm text-gray-500">
+                  Completa la información del cliente
+                </p>
+              </div>
+            </div>
+
+            {/* Derecha: Botón Guardar */}
+            <button
+              type="submit"
+              form="cliente-form"
+              disabled={loading}
+              className="px-4 py-2.5 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Guardando...
+                </>
+              ) : (
+                <>
+                  <Save size={18} />
+                  Guardar
+                </>
+              )}
+            </button>
           </div>
         </div>
+      </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Contenido */}
+      <div className="max-w-4xl mx-auto p-6 space-y-6">
+        {/* Form - agregar id para conectar con el botón del topbar */}
+        <form id="cliente-form" onSubmit={handleSubmit} className="space-y-6">
           {/* Información Básica */}
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center gap-2 mb-6">
@@ -205,7 +242,7 @@ export default function NuevoCliente() {
               {/* RFC */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  RFC *
+                  RFC
                 </label>
                 <input
                   type="text"
@@ -367,38 +404,16 @@ export default function NuevoCliente() {
               />
             </div>
           </div>
-
-          {/* Botones */}
-          <div className="flex items-center justify-end gap-3 bg-white rounded-lg border border-gray-200 p-4">
-            <button
-              type="button"
-              onClick={handleCancel}
-              disabled={loading}
-              className="px-4 py-2.5 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            >
-              <X size={18} />
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-4 py-2.5 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Guardando...
-                </>
-              ) : (
-                <>
-                  <Save size={18} />
-                  Guardar Cliente
-                </>
-              )}
-            </button>
-          </div>
         </form>
       </div>
+
+      <MensajeConfirmacion
+        open={showConfirm}
+        onOpenChange={setShowConfirm}
+        title="¿Deseas cancelar?"
+        description="Se perderán los cambios no guardados."
+        onConfirm={handleConfirmCancel}
+      />
     </div>
   );
 }

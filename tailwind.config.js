@@ -11,8 +11,8 @@ export default {
       colors: {
         // Colores base
         brand: "var(--color-brand)",
-        black: "var(--color-black)",
-        white: "var(--color-white)",
+        // black: "var(--color-black)",
+        // white: "var(--color-white)",
         
         // Colores del tema usando CSS variables
         background: "var(--bg)",
