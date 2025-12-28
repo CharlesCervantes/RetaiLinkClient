@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import { MensajeConfirmacion } from "../components/mensajeConfirmaacion";
+import { registClient } from '../Fetch/clientes';
 
 type FormErrors = {
   [key: string]: string | null;
@@ -82,9 +83,21 @@ export default function NuevoCliente() {
     setLoading(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      console.log("Cliente creado:", formData);
+      const id_user = 1;
+
+      await registClient({
+        id_user,
+        name: formData.vc_nombre,
+        rfc: formData.vc_rfc || undefined,
+        email: formData.vc_email,
+        phone: formData.vc_telefono || undefined,
+        address: formData.vc_direccion || undefined,
+        city: formData.vc_ciudad || undefined,
+        addiccional_notes: formData.vc_observaciones || undefined,
+      });
+
       toast.success("Cliente creado exitosamente");
+      navigate('/clientes');
     } catch (error) {
       console.error("Error:", error);
       alert("Error al crear cliente");
