@@ -51,12 +51,11 @@ export default function Layout() {
           </div>
 
           {/* Contenido principal */}
-          <main className="flex-1 overflow-auto p-4 bg-background">
+          <main className="flex-1 overflow-auto p-4 bg-background pt-0">
             <Outlet />
           </main>
         </div>
       </div>
-      <Toaster />
     </SidebarProvider>
   );
 }

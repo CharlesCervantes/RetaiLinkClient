@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   Building2,
@@ -25,16 +26,12 @@ import {
   DropdownMenuTrigger,
 } from "../components/ui/dropdown-menu";
 
-// Importar componentes del DataTable
 import {
   DataTable,
   DataTableColumnHeader,
   FilterConfig,
 } from "../components/ui/datatble";
 
-// ============================================================================
-// TIPOS E INTERFACES
-// ============================================================================
 
 export interface Cliente {
   id_cliente: number;
@@ -366,10 +363,13 @@ export default function ClientesPage() {
               Administra los clientes del sistema
             </p>
           </div>
-          <Button className="flex items-center gap-2">
-            <Plus size={18} />
-            Nuevo Cliente
-          </Button>
+          <Link to="/crearCliente">
+            <Button className="flex items-center gap-2">
+              <Plus size={18} />
+              Nuevo Cliente
+            </Button>
+          </Link>
+          
         </div>
 
         {/* Stats */}
