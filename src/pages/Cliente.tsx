@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   Building2,
@@ -54,6 +54,8 @@ export interface Cliente {
 // ============================================================================
 
 export default function ClientesPage() {
+  const navigate = useNavigate();
+
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -95,6 +97,7 @@ export default function ClientesPage() {
   // Handlers
   const handleView = (cliente: Cliente) => {
     console.log("Ver cliente:", cliente);
+    navigate(`/clientes/${cliente.id_cliente}`);
     // Navegar a detalle o abrir modal
   };
 

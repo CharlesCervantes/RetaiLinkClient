@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   ArrowLeft,
   Building2,
@@ -70,9 +71,11 @@ export default function ClienteDetalle() {
         <div className="max-w-6xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                <ArrowLeft size={20} className="text-gray-600" />
-              </button>
+                <Link to="/clientes">
+                    <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                        <ArrowLeft size={20} className="text-gray-600" />
+                    </button>
+                </Link>
               <div>
                 <h1 className="text-xl font-semibold text-gray-900">
                   Detalle del Cliente
