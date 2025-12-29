@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ColumnDef } from "@tanstack/react-table";
 import {
@@ -14,6 +14,7 @@ import {
   Trash2,
   MoreVertical,
   Plus,
+  Loader2,
 } from "lucide-react";
 
 import { Button } from "../components/ui/button";
@@ -32,6 +33,8 @@ import {
   FilterConfig,
 } from "../components/ui/datatble";
 
+import { getCLientsList } from '../Fetch/clientes';
+
 
 export interface Cliente {
   id_cliente: number;
@@ -45,85 +48,49 @@ export interface Cliente {
   dt_creacion: string;
 }
 
-// ============================================================================
-// DATOS MOCK
-// ============================================================================
-
-const CLIENTES_MOCK: Cliente[] = [
-  {
-    id_cliente: 1,
-    vc_nombre: "Liverpool",
-    vc_rfc: "LIV850101ABC",
-    vc_email: "contacto@liverpool.com.mx",
-    vc_telefono: "+52 81 8888 9999",
-    i_cant_usuarios: 45,
-    i_cant_establecimientos: 12,
-    b_activo: true,
-    dt_creacion: "2024-01-15",
-  },
-  {
-    id_cliente: 2,
-    vc_nombre: "CEMEX",
-    vc_rfc: "CEM920827KL1",
-    vc_email: "contacto@cemex.com",
-    vc_telefono: "+52 81 8888 0000",
-    i_cant_usuarios: 32,
-    i_cant_establecimientos: 8,
-    b_activo: true,
-    dt_creacion: "2024-02-20",
-  },
-  {
-    id_cliente: 3,
-    vc_nombre: "Grupo Alfa",
-    vc_rfc: "GAL740303MN8",
-    vc_email: "info@alfa.com.mx",
-    vc_telefono: "+52 81 8748 1111",
-    i_cant_usuarios: 18,
-    i_cant_establecimientos: 5,
-    b_activo: true,
-    dt_creacion: "2024-03-10",
-  },
-  {
-    id_cliente: 4,
-    vc_nombre: "Soriana",
-    vc_rfc: "SOR680915RT5",
-    vc_email: "soporte@soriana.com",
-    vc_telefono: "+52 81 8529 5555",
-    i_cant_usuarios: 28,
-    i_cant_establecimientos: 9,
-    b_activo: false,
-    dt_creacion: "2023-11-05",
-  },
-  {
-    id_cliente: 5,
-    vc_nombre: "Coppel",
-    vc_rfc: "COP870512XY9",
-    vc_email: "contacto@coppel.com",
-    vc_telefono: "+52 81 8333 4444",
-    i_cant_usuarios: 22,
-    i_cant_establecimientos: 6,
-    b_activo: true,
-    dt_creacion: "2024-04-01",
-  },
-  {
-    id_cliente: 6,
-    vc_nombre: "Home Depot México",
-    vc_rfc: "HDM010920PQ2",
-    vc_email: "info@homedepot.com.mx",
-    vc_telefono: "+52 81 8555 7777",
-    i_cant_usuarios: 15,
-    i_cant_establecimientos: 4,
-    b_activo: false,
-    dt_creacion: "2023-12-15",
-  },
-];
 
 // ============================================================================
 // COMPONENTE PRINCIPAL
 // ============================================================================
 
 export default function ClientesPage() {
-  const [clientes, setClientes] = useState<Cliente[]>(CLIENTES_MOCK);
+  const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Cargar clientes al montar el componente
+  useEffect(() => {
+    const fetchClientes = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await getCLientsList();
+        
+        // Mapear datos de la API al formato del componente
+        const clientesMapeados: Cliente[] = response.data.map((c: any) => ({
+          id_cliente: c.id_client,
+          vc_nombre: c.name,
+          vc_rfc: c.rfc || "",
+          vc_email: c.email || "",
+          vc_telefono: c.phone || "",
+          i_cant_usuarios: c.users_count || 0,        // Cuando lo agregues
+          i_cant_establecimientos: c.stores_count || 0, // Cuando lo agregues
+          b_activo: c.i_status === 1,
+          dt_creacion: c.dt_register,
+        }));
+
+        setClientes(clientesMapeados);
+      } catch (err) {
+        console.error("Error cargando clientes:", err);
+        setError("Error al cargar los clientes");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchClientes();
+  }, []);
 
   // Handlers
   const handleView = (cliente: Cliente) => {
@@ -355,6 +322,7 @@ export default function ClientesPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
+
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -371,6 +339,24 @@ export default function ClientesPage() {
           </Link>
           
         </div>
+
+        {/* Loading state */}
+        {loading && (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+          </div>
+        )}
+
+        {/* Error state */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            {error}
+          </div>
+        )}
+
+        {/* Content - solo mostrar cuando no está cargando */}
+        {!loading && !error && (
+          <>
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -431,6 +417,8 @@ export default function ClientesPage() {
           </div>
         </div>
 
+        
+
         {/* DataTable */}
         <div className="bg-white rounded-lg border border-gray-200 p-4">
           <DataTable<Cliente>
@@ -482,6 +470,8 @@ export default function ClientesPage() {
             getRowId={(row) => row.id_cliente.toString()}
           />
         </div>
+        </>
+        )}
       </div>
     </div>
   );
