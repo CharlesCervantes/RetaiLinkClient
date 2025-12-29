@@ -24,3 +24,14 @@ export const registClient = async (data: ClientData) => {
   
   return res.json();
 };
+
+export const getCLientsList = async () => {
+  const res = await fetch(`${API_URL}/superadmin/get_clients_list`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  });
+
+  if (!res.ok) throw new Error("Error al obtener la lista de clientes");
+
+  return res.json();
+};
