@@ -15,6 +15,7 @@ import Establecimientos from "../pages/Establecimientos";
 import Preguntas from "../pages/PreguntasTabla";
 import RestorePassword from "../pages/auth/restore-password";
 import CrearCliente from "../pages/ClienteN";
+import ClientDetailPage from "../pages/superadmin/clients/ClientDetail";
 
 export default function AppRouter() {
   return (
@@ -37,6 +38,7 @@ export default function AppRouter() {
           <Route path="createProduct" element={<CreateProduct />} />
           <Route path="clientes" element={<ClientesList />} />
           <Route path="crearCliente" element={<CrearCliente />} />
+          <Route path="clientes/:id" element={<ClientDetailPage />} />
 
           <Route path="solicitudes" element={<Solicitudes />} />
           <Route path="crearSolicitud" element={<CrearSolicitud />} />
