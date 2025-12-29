@@ -85,7 +85,7 @@ export default function NuevoCliente() {
     try {
       const id_user = 1;
 
-      await registClient({
+      const result = await registClient({
         id_user,
         name: formData.vc_nombre,
         rfc: formData.vc_rfc || undefined,
@@ -97,7 +97,7 @@ export default function NuevoCliente() {
       });
 
       toast.success("Cliente creado exitosamente");
-      navigate('/clientes');
+      navigate(`/clientes/${result.data.id}`);
     } catch (error) {
       console.error("Error:", error);
       alert("Error al crear cliente");
