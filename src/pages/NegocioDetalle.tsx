@@ -13,7 +13,7 @@ import { PreguntasNegocioTable } from "../components/ui/preguntas-negocio-table"
 import { StatusBadge } from "../components/ui/status-badge";
 import { LoadingButton } from "../components/ui/loading-button";
 import { type Negocio, getNegocioById } from "../Fetch/negocios";
-import { getUsersByBusiness, Usuario, registerUserByBuisness } from "../Fetch/usuarios";
+import { getUsersByBusiness, Usuario, registerUserInClient } from "../Fetch/usuarios";
 import { PreguntaNegocio, getPreguntasByNegocio } from "../Fetch/preguntas"
 import { generatePassword, validateEmail, validateMexicanPhone } from "../utils/passwordGenerator";
 
@@ -262,7 +262,13 @@ const NegocioDetalle: React.FC = () => {
                 i_rol: 2
             };
 
-            const res = await registerUserByBuisness(newUser);
+            const res = await registerUserInClient({
+                name: newUser.vc_nombre,
+                lastname: '',
+                email: newUser.vc_username,
+                id_user_creator: 1,
+                id_client: negocioId
+            });
             if (res.ok) {
                 setModalOpen(false);
                 resetForm();
