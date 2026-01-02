@@ -29,6 +29,21 @@ const authHeaders = () => {
   } as HeadersInit;
 };
 
+// POST: registrar usuario por negocio
+export const registerUserInClient = async (NewUserPayload: {name: string, lastname: string, email: string, id_user_creator: number, id_client: number}): Promise<ApiResponse<Usuario>> => {
+  const res = await fetch(
+    `${API_URL}/admin/create-user-in-client`,
+    {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify(NewUserPayload),
+    }
+  );
+
+  if (!res.ok) throw new Error("Error al obtener usuarios del negocio");
+  return res.json();
+};
+
 // GET: obtener usuarios por negocio
 export const getUsersByBusiness = async (id_negocio: number): Promise<ApiResponse<Usuario[]>> => {
   const res = await fetch(
@@ -43,16 +58,3 @@ export const getUsersByBusiness = async (id_negocio: number): Promise<ApiRespons
   return res.json();
 };
 
-// POST: registrar usuario por negocio
-export const registerUserByBuisness = async (User: Usuario): Promise<ApiResponse<Usuario>> => {
-  const res = await fetch(
-    `${API_URL}/admin/register-user-by-buisness`,
-    {
-      method: "POST",
-      headers: authHeaders(),
-      body: JSON.stringify(User),
-    }
-  );
-  if (!res.ok) throw new Error("Error al obtener usuarios del negocio");
-  return res.json();
-};

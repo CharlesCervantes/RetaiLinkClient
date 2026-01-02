@@ -14,24 +14,47 @@ interface ClientData {
 }
 
 export const registClient = async (data: ClientData) => {
-  const res = await fetch(`${API_URL}/superadmin/create-client`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
+    try {
+        const res = await fetch(`${API_URL}/superadmin/create-client`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+        });
 
-  if (!res.ok) throw new Error("Error al registrar cliente");
-  
-  return res.json();
+        if (!res.ok) throw new Error("Error al registrar cliente");
+        
+        return res.json();
+    } catch (error) {
+        console.error("f.registClient:", error);
+    }
 };
 
 export const getCLientsList = async () => {
-  const res = await fetch(`${API_URL}/superadmin/get_clients_list`, {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-  });
+  try {
+    const res = await fetch(`${API_URL}/superadmin/get_clients_list`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+    });
 
-  if (!res.ok) throw new Error("Error al obtener la lista de clientes");
+    if (!res.ok) throw new Error("Error al obtener la lista de clientes");
 
-  return res.json();
+    return res.json();
+  } catch (error) {
+    console.error("f.getCLientsList:", error);
+  }
 };
+
+export const getClientById = async (id: number) => {
+    try {
+        const res = await fetch(`${API_URL}/superadmin/get_client/${id}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+        });
+
+        if (!res.ok) throw new Error("Error al obtener el cliente");
+
+        return res.json();
+    } catch (error) {
+        console.error("f.getClientById:", error);
+    }
+}

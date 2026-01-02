@@ -1,21 +1,16 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { Link, useParams } from "react-router-dom";
 import {
   ArrowLeft,
   Building2,
   Mail,
-  Phone,
   MapPin,
   FileText,
   Edit2,
-  Trash2,
   Users,
   Package,
   Store,
-  Calendar,
-  MoreVertical,
   Camera,
-  Shield,
   TrendingUp,
   Clock,
   ChevronDown,
@@ -23,25 +18,16 @@ import {
   Ticket,
 } from "lucide-react";
 
-// Mock data del cliente
-const clienteData = {
-  id: 1,
-  name: "Liverpool S.A. de C.V.",
-  rfc: "LIV850101ABC",
-  email: "contacto@liverpool.com.mx",
-  phone: "+52 81 8888 9999",
-  address: "Av. Constitución 2211",
-  city: "Monterrey",
-  state: "Nuevo León",
-  zip: "64000",
-  status: true,
-  created_at: "2024-01-15",
-  updated_at: "2024-12-20",
-  notes: "Cliente mayorista con crédito a 30 días. Contactar a Juan Pérez para pedidos especiales.",
-  users_count: 45,
-  stores_count: 12,
-  products_count: 1250,
-};
+import { Input } from "../../../components/ui/input"
+import { Label } from "../../../components/ui/label"
+
+import { ModalCustom } from '../../../components/ModalCustom'
+import { getClientById } from '../../../Fetch/clientes';
+import { registerUserInClient } from '../../../Fetch/usuarios';
+import { clientDetail } from '../../../types/clients';
+import { toast } from "sonner";
+import { useAuthStore } from "../../../store/authStore";
+
 
 // Tabs disponibles
 const tabs = [
@@ -53,188 +39,214 @@ const tabs = [
 ];
 
 export default function ClienteDetalle() {
-  const [activeTab, setActiveTab] = useState("info");
-  const [imageHover, setImageHover] = useState(false);
+    const { id } = useParams();
+    
+    const [activeTab, setActiveTab] = useState("info");
+    const [imageHover, setImageHover] = useState(false);
+    const [cliente, setCliente] = useState<clientDetail | null>(null);
+    const [initials, setInitials] = useState("");
 
-  const cliente = clienteData;
-  const initials = cliente.name
-    .split(" ")
-    .map((word) => word[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
+    useEffect(() => {
+        console.log("Fetching client data...");
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-                <Link to="/clientes">
-                    <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                        <ArrowLeft size={20} className="text-gray-600" />
-                    </button>
-                </Link>
-              <div>
-                <h1 className="text-xl font-semibold text-gray-900">
-                  Detalle del Cliente
-                </h1>
-                <p className="text-sm text-gray-500">
-                  Información completa y gestión
-                </p>
-              </div>
-            </div>
+        const fetchingData = async() => {
+            try{
+                const data = await getClientById(id ? parseInt(id) : 0);
 
-            <div className="flex items-center gap-2">
-              <button className="px-4 py-2 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2">
-                <Edit2 size={16} />
-                Editar
-              </button>
-              <button className="px-4 py-2 text-red-600 bg-white border border-gray-200 rounded-lg hover:bg-red-50 transition-colors flex items-center gap-2">
-                <Trash2 size={16} />
-                Eliminar
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+                const nameInitials = data.data.name
+                    .split(" ")
+                    .map((word: string) => word[0])
+                    .slice(0, 2)
+                    .join("")
+                    .toUpperCase();
 
-      {/* Content */}
-      <div className="max-w-6xl mx-auto p-6 space-y-6">
-        {/* Profile Card */}
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          {/* Banner */}
-          <div className="h-32 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900" />
+                setInitials(nameInitials);
+                setCliente(data.data);
+            } catch (error) {
+                console.error("Error fetching client data:", error);
+            }
+        };
 
-          {/* Profile Info */}
-          <div className="px-6 pb-6 pt-6">
-            <div className="flex flex-col md:flex-row md:items-end gap-4 -mt-16">
-              {/* Avatar */}
-              <div
-                className="relative"
-                onMouseEnter={() => setImageHover(true)}
-                onMouseLeave={() => setImageHover(false)}
-              >
-                <div className="w-32 h-32 bg-white rounded-2xl border-4 border-white shadow-lg flex items-center justify-center overflow-hidden">
-                  {/* Placeholder con iniciales estilo Google */}
-                  <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center">
-                    <span className="text-4xl font-semibold text-white">
-                      {initials}
-                    </span>
-                  </div>
+        fetchingData();
+    }, []);
+
+    return (
+        <div className="min-h-screen bg-gray-50">
+
+        <div className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
+            <div className="max-w-6xl mx-auto px-6 py-4">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <Link to="/clientes">
+                        <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                            <ArrowLeft size={20} className="text-gray-600" />
+                        </button>
+                    </Link>
+                <div>
+                    <h1 className="text-xl font-semibold text-gray-900">
+                    Detalle del Cliente
+                    </h1>
+                    <p className="text-sm text-gray-500">
+                    Información completa y gestión
+                    </p>
+                </div>
                 </div>
 
-                {/* Overlay para subir foto */}
-                {imageHover && (
-                  <div className="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center cursor-pointer transition-opacity">
-                    <div className="text-center text-white">
-                      <Camera size={24} className="mx-auto mb-1" />
-                      <span className="text-xs">Cambiar foto</span>
+                <div className="flex items-center gap-2">
+                <button className="px-4 py-2 text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2">
+                    <Edit2 size={16} />
+                    Editar
+                </button>
+                {/*  TODO: esto cambiara a cambiar status
+                <button className="px-4 py-2 text-red-600 bg-white border border-gray-200 rounded-lg hover:bg-red-50 transition-colors flex items-center gap-2">
+                    <Trash2 size={16} />
+                    Eliminar
+                </button> */}
+                </div>
+            </div>
+            </div>
+        </div>
+
+        {/* Content */}
+        <div className="max-w-6xl mx-auto p-6 space-y-6">
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                <div className="h-32 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900" />
+
+                <div className="px-6 pb-6 pt-6">
+                    <div className="flex flex-col md:flex-row md:items-end gap-4 -mt-16">
+                        <div
+                            className="relative"
+                            onMouseEnter={() => setImageHover(true)}
+                            onMouseLeave={() => setImageHover(false)}
+                        >
+                            <div className="w-32 h-32 bg-white rounded-2xl border-4 border-white shadow-lg flex items-center justify-center overflow-hidden">
+                                <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center">
+                                    <span className="text-4xl font-semibold text-white">
+                                        {initials}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Overlay para subir foto */}
+                            {imageHover && (
+                                <div className="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center cursor-pointer transition-opacity">
+                                    <div className="text-center text-white">
+                                        <Camera size={24} className="mx-auto mb-1" />
+                                        <span className="text-xs">Cambiar foto</span>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Name and Status */}
+                        <div className="flex-1 md:mb-2 md:pt-4">
+                            <div className="flex items-center gap-3 flex-wrap">
+                                <h2 className="text-2xl font-bold text-gray-900">
+                                    {cliente?.name}
+                                </h2>
+                                
+                                {cliente?.i_status ? (
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-700 text-sm font-medium rounded-full">
+                                        <div className="w-2 h-2 bg-green-500 rounded-full" />
+                                        Activo
+                                    </span>
+                                ) : (
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-50 text-red-700 text-sm font-medium rounded-full">
+                                        <div className="w-2 h-2 bg-red-500 rounded-full" />
+                                        Inactivo
+                                    </span>
+                                )}
+                            </div>
+                            
+                            <p className="text-gray-500 mt-1">{cliente?.rfc}</p>
+                        </div>
+
+                        {/* Quick Stats */}
+                        {/* <div className="flex gap-6 md:mb-2">
+                            <div className="text-center">
+                            <p className="text-2xl font-bold text-gray-900">
+                                {cliente.users_count}
+                            </p>
+                            <p className="text-sm text-gray-500">Usuarios</p>
+                            </div>
+                            <div className="text-center">
+                            <p className="text-2xl font-bold text-gray-900">
+                                {cliente.stores_count}
+                            </p>
+                            <p className="text-sm text-gray-500">Establecimientos</p>
+                            </div>
+                            <div className="text-center">
+                            <p className="text-2xl font-bold text-gray-900">
+                                {cliente.products_count}
+                            </p>
+                            <p className="text-sm text-gray-500">Productos</p>
+                            </div>
+                        </div> */}
                     </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Name and Status */}
-              <div className="flex-1 md:mb-2 md:pt-4">
-                <div className="flex items-center gap-3 flex-wrap">
-                  <h2 className="text-2xl font-bold text-gray-900">
-                    {cliente.name}
-                  </h2>
-                  {cliente.status ? (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-700 text-sm font-medium rounded-full">
-                      <div className="w-2 h-2 bg-green-500 rounded-full" />
-                      Activo
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-50 text-red-700 text-sm font-medium rounded-full">
-                      <div className="w-2 h-2 bg-red-500 rounded-full" />
-                      Inactivo
-                    </span>
-                  )}
                 </div>
-                <p className="text-gray-500 mt-1">{cliente.rfc}</p>
-              </div>
-
-              {/* Quick Stats */}
-              <div className="flex gap-6 md:mb-2">
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-gray-900">
-                    {cliente.users_count}
-                  </p>
-                  <p className="text-sm text-gray-500">Usuarios</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-gray-900">
-                    {cliente.stores_count}
-                  </p>
-                  <p className="text-sm text-gray-500">Establecimientos</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-gray-900">
-                    {cliente.products_count}
-                  </p>
-                  <p className="text-sm text-gray-500">Productos</p>
-                </div>
-              </div>
             </div>
-          </div>
-        </div>
 
-        {/* Tabs */}
-        <div className="bg-white rounded-xl border border-gray-200">
-          {/* Tab Headers */}
-          <div className="border-b border-gray-200">
-            <div className="flex overflow-x-auto">
-              {tabs.map((tab) => {
-                const Icon = tab.icon;
-                const isActive = activeTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 px-6 py-4 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                      isActive
-                        ? "border-gray-900 text-gray-900"
-                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                    }`}
-                  >
-                    <Icon size={18} />
-                    {tab.label}
-                    {tab.count !== undefined && (
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-xs ${
-                          isActive
-                            ? "bg-gray-900 text-white"
-                            : "bg-gray-100 text-gray-600"
-                        }`}
-                      >
-                        {tab.count}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
+            {/* Tabs */}
+            <div className="bg-white rounded-xl border border-gray-200">
+                <div className="border-b border-gray-200">
+                    <div className="flex overflow-x-auto">
+                        {tabs.map((tab) => {
+                            const Icon = tab.icon;
+                            const isActive = activeTab === tab.id;
+                            return (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setActiveTab(tab.id)}
+                                    className={`flex items-center gap-2 px-6 py-4 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                                    isActive
+                                        ? "border-gray-900 text-gray-900"
+                                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                                    }`}
+                                >
+                                    <Icon size={18} />
+                                    {tab.label}
+                                    {tab.count !== undefined && (
+                                    <span
+                                        className={`px-2 py-0.5 rounded-full text-xs ${
+                                        isActive
+                                            ? "bg-gray-900 text-white"
+                                            : "bg-gray-100 text-gray-600"
+                                        }`}
+                                    >
+                                        {tab.count}
+                                    </span>
+                                    )}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* Tab Content */}
+                <div className="p-6">
+                    {activeTab === "info" && <TabInfo cliente={cliente} />}
+                    {activeTab === "users" && <TabUsers cliente={cliente} />}
+                    {activeTab === "stores" && <TabStores />}
+                    {activeTab === "products" && <TabProducts />}
+                    {activeTab === "history" && <TabHistory />}
+                </div>
             </div>
-          </div>
-
-          {/* Tab Content */}
-          <div className="p-6">
-            {activeTab === "info" && <TabInfo cliente={cliente} />}
-            {activeTab === "users" && <TabUsers />}
-            {activeTab === "stores" && <TabStores />}
-            {activeTab === "products" && <TabProducts />}
-            {activeTab === "history" && <TabHistory />}
-          </div>
         </div>
-      </div>
-    </div>
-  );
+        </div>
+    );
 }
 
+const formatDate = (dateString?: string) => {
+  if (!dateString) return "-";
+  return new Date(dateString).toLocaleDateString("es-MX", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
+
 // Tab: Información
-function TabInfo({ cliente }: { cliente: typeof clienteData }) {
+function TabInfo({ cliente }: { cliente: clientDetail | null }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Columna Principal */}
@@ -248,11 +260,11 @@ function TabInfo({ cliente }: { cliente: typeof clienteData }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="p-4 bg-gray-50 rounded-lg">
               <p className="text-sm text-gray-500 mb-1">Email</p>
-              <p className="font-medium text-gray-900">{cliente.email}</p>
+              <p className="font-medium text-gray-900">{cliente?.email}</p>
             </div>
             <div className="p-4 bg-gray-50 rounded-lg">
               <p className="text-sm text-gray-500 mb-1">Teléfono</p>
-              <p className="font-medium text-gray-900">{cliente.phone}</p>
+              <p className="font-medium text-gray-900">{cliente?.phone}</p>
             </div>
           </div>
         </div>
@@ -266,20 +278,20 @@ function TabInfo({ cliente }: { cliente: typeof clienteData }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="p-4 bg-gray-50 rounded-lg md:col-span-2">
               <p className="text-sm text-gray-500 mb-1">Calle</p>
-              <p className="font-medium text-gray-900">{cliente.address}</p>
+              <p className="font-medium text-gray-900">{cliente?.address}</p>
             </div>
             <div className="p-4 bg-gray-50 rounded-lg">
               <p className="text-sm text-gray-500 mb-1">Ciudad</p>
-              <p className="font-medium text-gray-900">{cliente.city}</p>
+              <p className="font-medium text-gray-900">{cliente?.city}</p>
             </div>
-            <div className="p-4 bg-gray-50 rounded-lg">
+            {/* <div className="p-4 bg-gray-50 rounded-lg">
               <p className="text-sm text-gray-500 mb-1">Estado</p>
               <p className="font-medium text-gray-900">{cliente.state}</p>
             </div>
             <div className="p-4 bg-gray-50 rounded-lg">
               <p className="text-sm text-gray-500 mb-1">Código Postal</p>
               <p className="font-medium text-gray-900">{cliente.zip}</p>
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -290,7 +302,7 @@ function TabInfo({ cliente }: { cliente: typeof clienteData }) {
             Observaciones
           </h3>
           <div className="p-4 bg-gray-50 rounded-lg">
-            <p className="text-gray-700 whitespace-pre-wrap">{cliente.notes}</p>
+            <p className="text-gray-700 whitespace-pre-wrap">{cliente?.addiccional_notes}</p>
           </div>
         </div>
       </div>
@@ -307,21 +319,13 @@ function TabInfo({ cliente }: { cliente: typeof clienteData }) {
             <div>
               <p className="text-sm text-gray-500">Fecha de registro</p>
               <p className="font-medium text-gray-900">
-                {new Date(cliente.created_at).toLocaleDateString("es-MX", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
+                {formatDate(cliente?.dt_register)}
               </p>
             </div>
             <div>
               <p className="text-sm text-gray-500">Última actualización</p>
               <p className="font-medium text-gray-900">
-                {new Date(cliente.updated_at).toLocaleDateString("es-MX", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
+                {formatDate(cliente?.dt_updated)}
               </p>
             </div>
           </div>
@@ -354,13 +358,47 @@ function TabInfo({ cliente }: { cliente: typeof clienteData }) {
 }
 
 // Tab: Usuarios (placeholder)
-function TabUsers() {
-  const users = [
-    { id: 1, name: "Juan Pérez", email: "juan@liverpool.com", role: "Admin", status: true },
-    { id: 2, name: "María García", email: "maria@liverpool.com", role: "Vendedor", status: true },
-    { id: 3, name: "Carlos López", email: "carlos@liverpool.com", role: "Inventario", status: false },
-    { id: 4, name: "Ana Martínez", email: "ana@liverpool.com", role: "Vendedor", status: true },
-  ];
+function TabUsers({cliente}: {cliente: clientDetail | null}) {
+  const { user } = useAuthStore();
+  const [isLoadingModal, setIsLoadingModal] = useState(false);
+
+  const nombreRef = useRef<HTMLInputElement>(null);
+  const apellidosRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+
+
+  const handleSaveUser = async (): Promise<boolean> => {
+    setIsLoadingModal(true);
+    
+    try {
+      const userData = {
+        name: nombreRef.current?.value || "",
+        lastname: apellidosRef.current?.value || "",
+        email: emailRef.current?.value || "",
+        id_user_creator: user?.id_usuario || 0,
+        id_client: cliente?.id_client || 0,
+      };
+
+      console.log("Saving user data:", userData);
+
+      const response =  await registerUserInClient(userData);
+
+      console.log("Response from registerUserInClient:", response);
+
+      if (response.error) {
+        toast.error('Error al agregar el usuario');
+        return false;
+      }
+
+      toast.success('Usuario agregado exitosamente');
+      return true;
+    } catch (error) {
+      console.error(error);
+      return false;
+    } finally {
+      setIsLoadingModal(false);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -368,10 +406,33 @@ function TabUsers() {
         <h3 className="text-lg font-semibold text-gray-900">
           Usuarios del Cliente
         </h3>
-        <button className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2">
-          <Users size={16} />
-          Agregar Usuario
-        </button>
+
+        <ModalCustom
+          buttonTitle="Agregar Usuario"
+          dialogTitle="Agregar Nuevo Usuario"
+          dialogDescription="Complete el formulario para agregar un nuevo usuario al cliente."
+          isLoading={isLoadingModal}
+          onSubmit={handleSaveUser}
+          body={
+            <>
+              {/* Formulario para agregar usuario */}
+              <div className="grid gap-4">
+                <div className="grid gap-3">
+                  <Label htmlFor="nombre">Nombre</Label>
+                  <Input ref={nombreRef} id="nombre" name="nombre" defaultValue="" />
+                </div>
+                <div className="grid gap-3">
+                  <Label htmlFor="apellidos">apellidos</Label>
+                  <Input ref={apellidosRef} id="apellidos" name="apellidos" defaultValue="" />
+                </div>
+                <div className="grid gap-3">
+                  <Label htmlFor="email">Correo electronico</Label>
+                  <Input ref={emailRef} type="email" id="email" name="email" defaultValue="" />
+                </div>
+              </div>
+            </>
+          }
+        />
       </div>
 
       {/* Table */}
@@ -385,7 +446,7 @@ function TabUsers() {
               <th className="px-4 py-3 text-right text-sm font-medium text-gray-600">Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          {/* <tbody className="divide-y divide-gray-200">
             {users.map((user) => (
               <tr key={user.id} className="hover:bg-gray-50">
                 <td className="px-4 py-3">
@@ -424,7 +485,7 @@ function TabUsers() {
                 </td>
               </tr>
             ))}
-          </tbody>
+          </tbody> */}
         </table>
       </div>
     </div>
