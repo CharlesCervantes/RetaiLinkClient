@@ -22,6 +22,7 @@ import {
   PromoterLocation,
 } from "../data/mockDashboard";
 
+//Charly aqui
 export default function Home() {
   const { user } = useAuthStore();
   const [stats, setStats] = useState<DashboardStats>(mockSuperAdminStats);
