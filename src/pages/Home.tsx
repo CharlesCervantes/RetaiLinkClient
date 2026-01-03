@@ -22,7 +22,8 @@ import {
   PromoterLocation,
 } from "../data/mockDashboard";
 
-//Charly aqui
+//Charly aqui 
+// -------------------------------------------- ejemplo conflicto github --------------------------------------------
 export default function Home() {
   const { user } = useAuthStore();
   const [stats, setStats] = useState<DashboardStats>(mockSuperAdminStats);
