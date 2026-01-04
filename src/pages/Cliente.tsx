@@ -340,7 +340,6 @@ export default function ClientesPage() {
               Nuevo Cliente
             </Button>
           </Link>
-          
         </div>
 
         {/* Loading state */}

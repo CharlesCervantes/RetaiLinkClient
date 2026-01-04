@@ -16,6 +16,7 @@ export interface Usuario {
 }
 
 type ApiResponse<T> = {
+  error: boolean;
   ok: boolean;
   data: T;
   message?: string;

@@ -5,7 +5,8 @@ import { create } from "zustand";
 interface AuthState {
   user: User | null;
   token: string | null;
-  idNegocio: number | null;
+  id_client: number | null;
+
   login: (token: string, user: User) => void;
   logout: () => void;
 }
@@ -15,18 +16,18 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
       token: null,
-      idNegocio: null,
+      id_client: null,
       login: (token, user) =>
         set({
           user,
           token,
-          idNegocio: user.id_negocio,
+          id_client: user.id_client || null,
         }),
       logout: () =>
         set({
           user: null,
           token: null,
-          idNegocio: null,
+          id_client: null,
         }),
     }),
     {

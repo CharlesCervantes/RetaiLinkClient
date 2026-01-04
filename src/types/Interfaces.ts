@@ -1,11 +1,10 @@
 export interface User {
-    id_usuario: number;
-    vc_username: string;
-    vc_nombre: string;
-    id_negocio: number;
-    b_activo: boolean;
-    dt_registro: number;
-    dt_actualizacion: number;
-    i_rol: number;
-  }
-  
+  id_user: number;
+  email: string;
+  name: string;
+  lastname: string;
+  i_rol: number;
+  id_client?: number;  // Agrega esto si lo necesitas
+  dt_register: string;
+  dt_updated: string;
+}

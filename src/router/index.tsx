@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import CrearSolicitud from "../components/CrearSolicitud";
-import CreateProduct from "../components/CreateProduct";
+// import CreateProduct from "../components/CreateProduct";
 import PrivateRoute from "../components/PrivateRoute";
 import Layout from "../components/layout/Layout";
 import Solicitudes from "../pages/Solicitudes";
@@ -16,6 +16,9 @@ import Preguntas from "../pages/PreguntasTabla";
 import RestorePassword from "../pages/auth/restore-password";
 import CrearCliente from "../pages/ClienteN";
 import ClientDetailPage from "../pages/superadmin/clients/ClientDetail";
+import ProductPage from "../pages/admin/products/Products";
+import CreateProduct from "../pages/admin/products/NewProduct";
+import ProductDetail from "../pages/admin/products/ProductDetail";
 
 export default function AppRouter() {
   return (
@@ -35,10 +38,13 @@ export default function AppRouter() {
           }
         >
           <Route index element={<Home />} />
-          <Route path="createProduct" element={<CreateProduct />} />
           <Route path="clientes" element={<ClientesList />} />
           <Route path="crearCliente" element={<CrearCliente />} />
           <Route path="clientes/:id" element={<ClientDetailPage />} />
+          <Route path="productos" element={<ProductPage />} />
+          <Route path="producto" element={<CreateProduct />} />
+          <Route path="producto/:id_product" element={<CreateProduct />} />
+          <Route path="producto/detalle/:id_product" element={<ProductDetail />} />
 
           <Route path="solicitudes" element={<Solicitudes />} />
           <Route path="crearSolicitud" element={<CrearSolicitud />} />
