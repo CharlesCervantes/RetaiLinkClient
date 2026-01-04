@@ -14,12 +14,13 @@ import {
   MoreVertical,
   ChevronLeft,
   HomeIcon,
+  icons,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import LogoutButton from "../LogoutButton";
 import { ThemeToggle } from "../ui/theme-toggle";
 import { useAuthStore } from "../../store/authStore";
-import { useState } from "react";
+import { use, useState } from "react";
 import { cn } from "../../lib/utils";
 
 interface SidebarProps {
@@ -74,6 +75,12 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
       label: "Preguntas",
       show: user?.i_rol === 1,
     },
+    {
+      route: "/productos",
+      icon: icons.Package,
+      label: "Productos",
+      show: user?.i_rol === 2 || user?.i_rol === 1,
+    }
   ];
 
   // Contenido del menú (compartido entre desktop y mobile)
