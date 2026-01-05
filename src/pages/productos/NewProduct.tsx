@@ -1,6 +1,6 @@
 // pages/ProductoForm.tsx
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import {
   ArrowLeft,
@@ -30,6 +30,10 @@ export default function ProductoForm() {
   const navigate = useNavigate();
   const { id_client, id_product } = useParams();
   const { user } = useAuthStore();
+  const location = useLocation();
+  const isSuperAdmin = user?.i_rol === 1;
+  const clientIdFromState = Number((location.state as any)?.id_client);
+  const clientIdFromParams = Number(id_client);
 
   // Detectar si es modo edición
   const isEditMode = Boolean(id_product);
@@ -50,6 +54,13 @@ export default function ProductoForm() {
     description: "",
     vc_image: "",
   });
+
+  const resolvedClientId =
+  isSuperAdmin
+    ? (clientIdFromState || clientIdFromParams || null)
+    : (user?.id_client || null);
+
+    
 
   // Cargar datos si es modo edición
   useEffect(() => {
@@ -173,30 +184,40 @@ export default function ProductoForm() {
 
         toast.success("Producto actualizado exitosamente");
       } else {
+        if (!resolvedClientId) {
+          toast.error("Selecciona un cliente antes de crear el producto");
+          setLoading(false);
+          return;
+        }
         // Modo creación: crear producto
         const result = await createProduct({
           id_user: user?.id_user!,
-          id_client: Number(user?.id_client!),
+          id_client: resolvedClientId,
           name: formData.name,
           description: formData.description || undefined,
         });
-
+        
         productId = result.data.id;
-
+        
         // Si hay imagen, subirla
         if (imageFile) {
           try {
-            await uploadProductImage(productId, Number(user?.id_client!), imageFile);
+            if (!resolvedClientId) {
+              toast.error("No se detectó el cliente para subir la imagen");
+            } else {
+              await uploadProductImage(productId, resolvedClientId, imageFile);
+            }
           } catch (imageError) {
             console.error("Error subiendo imagen:", imageError);
             toast.warning("Producto creado, pero hubo un error al subir la imagen");
           }
         }
-
+        
+        console.log("Create product result:", result);
         toast.success("Producto creado exitosamente");
       }
 
-      navigate(`/producto/detalle/${id_client}`);
+      navigate(`/producto/detalle/${resolvedClientId ?? ""}`);
     } catch (error) {
       console.error("Error:", error);
       toast.error(isEditMode ? "Error al actualizar producto" : "Error al crear producto");

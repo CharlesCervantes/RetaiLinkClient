@@ -248,7 +248,7 @@ export default function ProductPage() {
               Administra los productos del cliente
             </p>
           </div>
-          <Link to="/producto">
+          <Link to="/producto" state={{ id_client: selectedClientId }}>
             <Button className="flex items-center gap-2">
               <Plus size={18} />
               Nuevo Producto
@@ -361,7 +361,7 @@ export default function ProductPage() {
                   <p className="text-gray-500 mb-4">
                     Aún no hay productos registrados para este cliente.
                   </p>
-                  <Link to="/producto">
+                  <Link to="/producto" state={{ id_client: selectedClientId }}>
                     <Button>
                       <Plus size={16} className="mr-2" />
                       Agregar primer producto
