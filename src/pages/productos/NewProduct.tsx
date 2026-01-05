@@ -13,14 +13,14 @@ import {
   Loader2,
 } from "lucide-react";
 
-import { MensajeConfirmacion } from "../../../components/mensajeConfirmaacion";
+import { MensajeConfirmacion } from "../../components/mensajeConfirmaacion";
 import { 
   createProduct, 
   uploadProductImage, 
   getProductById,
   updateProduct
-} from "../../../Fetch/products";
-import { useAuthStore } from "../../../store/authStore";
+} from "../../Fetch/products";
+import { useAuthStore } from "../../store/authStore";
 
 type FormErrors = {
   [key: string]: string | null;
@@ -168,7 +168,7 @@ export default function ProductoForm() {
 
         // Si cambió la imagen, subirla
         if (imageChanged && imageFile) {
-          await uploadProductImage(productId, Number(id_client), imageFile);
+          await uploadProductImage(productId, Number(user?.id_client!), imageFile);
         }
 
         toast.success("Producto actualizado exitosamente");
@@ -176,7 +176,7 @@ export default function ProductoForm() {
         // Modo creación: crear producto
         const result = await createProduct({
           id_user: user?.id_user!,
-          id_client: Number(id_client),
+          id_client: Number(user?.id_client!),
           name: formData.name,
           description: formData.description || undefined,
         });
@@ -186,7 +186,7 @@ export default function ProductoForm() {
         // Si hay imagen, subirla
         if (imageFile) {
           try {
-            await uploadProductImage(productId, Number(id_client), imageFile);
+            await uploadProductImage(productId, Number(user?.id_client!), imageFile);
           } catch (imageError) {
             console.error("Error subiendo imagen:", imageError);
             toast.warning("Producto creado, pero hubo un error al subir la imagen");
@@ -196,7 +196,7 @@ export default function ProductoForm() {
         toast.success("Producto creado exitosamente");
       }
 
-      navigate(`/clientes/${id_client}/productos`);
+      navigate(`/producto/detalle/${id_client}`);
     } catch (error) {
       console.error("Error:", error);
       toast.error(isEditMode ? "Error al actualizar producto" : "Error al crear producto");

@@ -17,16 +17,16 @@ import {
   CreditCard,
   Ticket,
 } from "lucide-react";
-
-import { Input } from "../../../components/ui/input"
-import { Label } from "../../../components/ui/label"
-
-import { ModalCustom } from '../../../components/ModalCustom'
-import { getClientById } from '../../../Fetch/clientes';
-import { registerUserInClient } from '../../../Fetch/usuarios';
-import { clientDetail } from '../../../types/clients';
 import { toast } from "sonner";
-import { useAuthStore } from "../../../store/authStore";
+
+import { Input } from "../../components/ui/input"
+import { Label } from "../../components/ui/label"
+
+import { ModalCustom } from '../../components/ModalCustom'
+import { getClientById } from '../../Fetch/clientes';
+import { registerUserInClient } from '../../Fetch/usuarios';
+import { clientDetail } from '../../types/clients';
+import { useAuthStore } from "../../store/authStore";
 
 
 // Tabs disponibles

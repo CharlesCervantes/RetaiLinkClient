@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
-import { useAuthStore } from "../store/authStore";
-import { StatCard } from "../components/dashboard/StatCard";
-import { DateRangePicker } from "../components/dashboard/DateRangePicker";
-import { HeatMap } from "../components/dashboard/HeatMap";
+import { useAuthStore } from "../../store/authStore";
+import { StatCard } from "../../components/dashboard/StatCard";
+import { DateRangePicker } from "../../components/dashboard/DateRangePicker";
+import { HeatMap } from "../../components/dashboard/HeatMap";
 import {
   Users,
-  Building2,
   Store,
   TrendingUp,
   TrendingDown,
@@ -20,7 +19,7 @@ import {
   getPromotersForNegocio,
   DashboardStats,
   PromoterLocation,
-} from "../data/mockDashboard";
+} from "../../data/mockDashboard";
 
 export default function Home() {
   const { user } = useAuthStore();
@@ -37,9 +36,9 @@ export default function Home() {
     if (isSuperAdmin) {
       setStats(mockSuperAdminStats);
       setPromoters(mockPromoterLocations);
-    } else if (user?.id_negocio) {
-      setStats(getStatsForNegocio(user.id_negocio));
-      setPromoters(getPromotersForNegocio(user.id_negocio));
+    } else if (user?.id_client) {
+      setStats(getStatsForNegocio(user.id_client));
+      setPromoters(getPromotersForNegocio(user.id_client));
     } else {
       setStats(mockAdminStats);
       setPromoters(mockPromoterLocations.filter((p) => p.idNegocio === 1));
@@ -68,7 +67,7 @@ export default function Home() {
           <p className="text-slate-500 dark:text-slate-400 mt-1">
             {isSuperAdmin
               ? "Vista general de todos los negocios"
-              : `Vista de tu negocio${user?.id_negocio ? ` #${user.id_negocio}` : ""}`}
+              : `Vista de tu negocio${user?.id_client ? ` #${user.id_client}` : ""}`}
           </p>
         </div>
         <DateRangePicker onDateChange={handleDateChange} />

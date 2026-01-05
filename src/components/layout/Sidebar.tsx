@@ -64,10 +64,10 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
       show: user?.i_rol === 1,
     },
     {
-      route: "/establecimientos",
-      icon: Store,
-      label: "Tiendas",
-      show: user?.i_rol === 1,
+      route: "/productos",
+      icon: icons.Package,
+      label: "Productos",
+      show: user?.i_rol === 2 || user?.i_rol === 1,
     },
     {
       route: "/preguntas",
@@ -76,11 +76,11 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
       show: user?.i_rol === 1,
     },
     {
-      route: "/productos",
-      icon: icons.Package,
-      label: "Productos",
-      show: user?.i_rol === 2 || user?.i_rol === 1,
-    }
+      route: "/establecimientos",
+      icon: Store,
+      label: "Tiendas",
+      show: user?.i_rol === 1,
+    },
   ];
 
   // Contenido del menú (compartido entre desktop y mobile)
