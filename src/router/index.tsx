@@ -1,24 +1,15 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import CrearSolicitud from "../components/CrearSolicitud";
-// import CreateProduct from "../components/CreateProduct";
 import PrivateRoute from "../components/PrivateRoute";
 import Layout from "../components/layout/Layout";
-import Solicitudes from "../pages/Solicitudes";
-import ProductList from "../pages/ProductList";
-import Settings from "../pages/Settings";
 import Login from "../pages/Login";
-import Home from "../pages/Home";
-import ClientesList from "../pages/Cliente";
-import NegocioDetalle from "../pages/NegocioDetalle";
-import UsuariosTabla from "../pages/UsuariosTabla";
-import Establecimientos from "../pages/Establecimientos";
-import Preguntas from "../pages/PreguntasTabla";
+import Home from "../pages/inicio/Home";
+import ClientesList from "../pages/clientes/Cliente";
 import RestorePassword from "../pages/auth/restore-password";
-import CrearCliente from "../pages/ClienteN";
-import ClientDetailPage from "../pages/superadmin/clients/ClientDetail";
-import ProductPage from "../pages/admin/products/Products";
-import CreateProduct from "../pages/admin/products/NewProduct";
-import ProductDetail from "../pages/admin/products/ProductDetail";
+import CrearCliente from "../pages/clientes/ClienteN";
+import ClientDetailPage from "../pages/clientes/ClientDetail";
+import ProductPage from "../pages/productos/Products";
+import CreateProduct from "../pages/productos/NewProduct";
+import ProductDetail from "../pages/productos/ProductDetail";
 
 export default function AppRouter() {
   return (
@@ -45,15 +36,6 @@ export default function AppRouter() {
           <Route path="producto" element={<CreateProduct />} />
           <Route path="producto/:id_product" element={<CreateProduct />} />
           <Route path="producto/detalle/:id_product" element={<ProductDetail />} />
-
-          <Route path="solicitudes" element={<Solicitudes />} />
-          <Route path="crearSolicitud" element={<CrearSolicitud />} />
-          <Route path="settings" element={<Settings />} />
-          <Route path="productList" element={<ProductList />} />
-          <Route path="negocios/:id" element={<NegocioDetalle />} />
-          <Route path="negocios/:id/usuarios" element={<UsuariosTabla />} />
-          <Route path="establecimientos" element={<Establecimientos />} />
-          <Route path="preguntas" element={<Preguntas />} />
         </Route>
       </Routes>
     </BrowserRouter>

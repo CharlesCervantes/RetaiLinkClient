@@ -17,7 +17,7 @@ import {
   Loader2,
 } from "lucide-react";
 
-import { Button } from "../components/ui/button";
+import { Button } from "../../components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,15 +25,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../components/ui/dropdown-menu";
+} from "../../components/ui/dropdown-menu";
 
 import {
   DataTable,
   DataTableColumnHeader,
   FilterConfig,
-} from "../components/ui/datatble";
+} from "../../components/ui/datatble";
 
-import { getCLientsList } from '../Fetch/clientes';
+import { getCLientsList } from '../../Fetch/clientes';
 
 
 export interface Cliente {

@@ -10,8 +10,8 @@ import {
   AlertCircle,
 } from "lucide-react";
 
-import { MensajeConfirmacion } from "../components/mensajeConfirmaacion";
-import { registClient } from '../Fetch/clientes';
+import { MensajeConfirmacion } from "../../components/mensajeConfirmaacion";
+import { registClient } from '../../Fetch/clientes';
 
 type FormErrors = {
   [key: string]: string | null;

@@ -13,8 +13,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { getProductById, deleteProduct } from "../../../Fetch/products";
-import { MensajeConfirmacion } from "../../../components/mensajeConfirmaacion";
+import { getProductById, deleteProduct } from "../../Fetch/products";
+import { MensajeConfirmacion } from "../../components/mensajeConfirmaacion";
 
 interface Product {
   id_product: number;
