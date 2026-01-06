@@ -1,7 +1,4 @@
 import {
-  Sidebar as SidebarUI,
-  SidebarContent,
-  SidebarHeader,
   SidebarMenu,
   SidebarMenuItem,
 } from "../../components/ui/sidebar";
@@ -20,7 +17,7 @@ import { Link, useLocation } from "react-router-dom";
 import LogoutButton from "../LogoutButton";
 import { ThemeToggle } from "../ui/theme-toggle";
 import { useAuthStore } from "../../store/authStore";
-import { use, useState } from "react";
+import { useState } from "react";
 import { cn } from "../../lib/utils";
 
 interface SidebarProps {
@@ -70,15 +67,15 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
       show: user?.i_rol === 2 || user?.i_rol === 1,
     },
     {
+      route: "/establecimientos",
+      icon: Store,
+      label: "Establecimientos",
+      show: user?.i_rol === 2 || user?.i_rol === 1,
+    },
+    {
       route: "/preguntas",
       icon: FileQuestionIcon,
       label: "Preguntas",
-      show: user?.i_rol === 1,
-    },
-    {
-      route: "/establecimientos",
-      icon: Store,
-      label: "Tiendas",
       show: user?.i_rol === 1,
     },
   ];

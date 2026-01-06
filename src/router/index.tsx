@@ -10,6 +10,9 @@ import ClientDetailPage from "../pages/clientes/ClientDetail";
 import ProductPage from "../pages/productos/Products";
 import CreateProduct from "../pages/productos/NewProduct";
 import ProductDetail from "../pages/productos/ProductDetail";
+import Establecimientos from "../pages/establecimientos/Establecimientos";
+import Establecimiento from "../pages/establecimientos/Establecimiento";
+import EstablecimientoDetalle from "../pages/establecimientos/EstablecimientoDetalle";
 
 export default function AppRouter() {
   return (
@@ -36,6 +39,10 @@ export default function AppRouter() {
           <Route path="producto" element={<CreateProduct />} />
           <Route path="producto/:id_product" element={<CreateProduct />} />
           <Route path="producto/detalle/:id_product" element={<ProductDetail />} />
+          <Route path="establecimientos" element={<Establecimientos />} />
+          <Route path="establecimiento" element={<Establecimiento />} />
+          <Route path="establecimiento/:id_store_client" element={<Establecimiento />} />
+          <Route path="establecimiento/detalle/:id_store_client" element={<EstablecimientoDetalle />} />
         </Route>
       </Routes>
     </BrowserRouter>
