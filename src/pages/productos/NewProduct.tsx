@@ -192,24 +192,19 @@ export default function ProductoForm() {
         // Modo creación: crear producto
         const result = await createProduct({
           id_user: user?.id_user!,
-          id_client: resolvedClientId,
+          id_client: resolvedClientId!,
           name: formData.name,
           description: formData.description || undefined,
         });
         
-        productId = result.data.id;
+        const productId = result.data.id;
         
         // Si hay imagen, subirla
         if (imageFile) {
           try {
-            if (!resolvedClientId) {
-              toast.error("No se detectó el cliente para subir la imagen");
-            } else {
-              await uploadProductImage(productId, resolvedClientId, imageFile);
-            }
-          } catch (imageError) {
-            console.error("Error subiendo imagen:", imageError);
-            toast.warning("Producto creado, pero hubo un error al subir la imagen");
+            await uploadProductImage(productId, resolvedClientId!, imageFile);
+          } catch {
+            toast.warning("Producto creado, pero falló la subida de imagen");
           }
         }
         
@@ -217,7 +212,7 @@ export default function ProductoForm() {
         toast.success("Producto creado exitosamente");
       }
 
-      navigate(`/producto/detalle/${resolvedClientId ?? ""}`);
+      navigate(`/producto/detalle/${productId}`);
     } catch (error) {
       console.error("Error:", error);
       toast.error(isEditMode ? "Error al actualizar producto" : "Error al crear producto");

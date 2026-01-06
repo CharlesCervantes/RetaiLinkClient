@@ -29,13 +29,15 @@ interface Product {
 }
 
 export default function ProductoDetalle() {
-  const { id_client, id_product } = useParams();
+  const { id_product } = useParams();
   const navigate = useNavigate();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  const id_client = product?.id_client;
 
   useEffect(() => {
     fetchProduct();
@@ -116,7 +118,7 @@ export default function ProductoDetalle() {
         <div className="max-w-4xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link to={`/clientes/${id_client}/productos`}>
+              <Link to={`/productos`}>
                 <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
                   <ArrowLeft size={20} className="text-gray-600" />
                 </button>

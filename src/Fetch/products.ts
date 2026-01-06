@@ -94,22 +94,41 @@ export const uploadProductImage = async (
   id_client: number,
   imageFile: File
 ) => {
+  const token = useAuthStore.getState().token;
+
+  if (!token) {
+    throw new Error("Sesión inválida: no hay token");
+  }
+
   const formData = new FormData();
   formData.append("image", imageFile);
   formData.append("id_client", String(id_client));
 
   const response = await fetch(`${API_URL}/admin/products/${id_product}/image`, {
     method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      // NO pongas Content-Type con FormData
+    },
     body: formData,
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.details || "Error al subir imagen");
+    const contentType = response.headers.get("content-type") || "";
+    const data = contentType.includes("application/json")
+      ? await response.json()
+      : await response.text();
+
+    throw new Error(
+      typeof data === "string"
+        ? data
+        : data?.details || data?.message || "Error al subir imagen"
+    );
   }
 
   return response.json();
 };
+
 
 export const updateProduct = async (
   id_product: number,
