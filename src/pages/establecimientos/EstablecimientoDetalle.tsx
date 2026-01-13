@@ -18,9 +18,10 @@ import {
     OverlayView,
 } from "@react-google-maps/api";
 
+import { useAuthStore } from '../../store/authStore'
 import { Button } from "../../components/ui/button";
 import { MensajeConfirmacion } from "../../components/mensajeConfirmaacion";
-// import { getEstablecimientoById, deleteEstablecimiento } from "../../Fetch/establecimientos";
+import { getStoreClientById, deleteStoreClient } from "../../Fetch/establecimientos";
 
 interface Establecimiento {
     id_store_client: number;
@@ -130,6 +131,7 @@ function CustomMarker({ position, imageUrl, storeName }: CustomMarkerProps) {
 export default function EstablecimientoDetalle() {
     const navigate = useNavigate();
     const { id_store_client } = useParams();
+    const { user } = useAuthStore()
 
     const [establecimiento, setEstablecimiento] = useState<Establecimiento | null>(null);
     const [loading, setLoading] = useState(true);
@@ -144,14 +146,21 @@ export default function EstablecimientoDetalle() {
 
     useEffect(() => {
         if (id_store_client) {
-            fetchEstablecimiento();
+            if(user?.id_client && user.id_client > 0){
+                fetchEstablecimientoIdClient()
+            }else {
+                fetchEstablecimiento();
+            }
         }
     }, [id_store_client]);
 
     // Generar URL de Street View cuando se carga el establecimiento
     useEffect(() => {
         if (establecimiento?.latitude && establecimiento?.longitude) {
-            const streetViewUrl = `https://maps.googleapis.com/maps/api/streetview?size=400x300&location=${establecimiento.latitude},${establecimiento.longitude}&fov=90&heading=235&pitch=10&key=${GOOGLE_MAPS_API_KEY}`;
+            const streetViewUrl = `https://maps.googleapis.com/maps/api/streetview?size=400x300&location=${Number(establecimiento.latitude)},${Number(establecimiento.longitude)}&fov=90&heading=235&pitch=10&key=${GOOGLE_MAPS_API_KEY}`;
+
+            console.log("url: ", streetViewUrl);
+
             setStoreImage(streetViewUrl);
         }
     }, [establecimiento]);
@@ -159,31 +168,70 @@ export default function EstablecimientoDetalle() {
     const fetchEstablecimiento = async () => {
         try {
             setLoading(true);
-            // const response = await getEstablecimientoById(Number(id_store_client));
-            // setEstablecimiento(response.data);
+            const response = await getStoreClientById(Number(id_store_client));
+            setEstablecimiento(response.data);
 
             // Simulación - reemplazar con tu fetch real
-            setEstablecimiento({
-                id_store_client: 1,
-                id_store: 1,
-                id_client: 1,
-                id_usercreator: 1,
-                i_status: true,
-                dt_created: "2024-01-15",
-                dt_updated: "2024-01-15",
-                name: "Sucursal Centro",
-                store_code: "SUC-001",
-                street: "Av. Revolución",
-                ext_number: "123",
-                int_number: "Local 4",
-                neighborhood: "Centro",
-                municipality: "Monterrey",
-                state: "Nuevo León",
-                postal_code: "64000",
-                country: "México",
-                latitude: 25.6866,
-                longitude: -100.3161,
-            });
+            // setEstablecimiento({
+            //     id_store_client: 1,
+            //     id_store: 1,
+            //     id_client: 1,
+            //     id_usercreator: 1,
+            //     i_status: true,
+            //     dt_created: "2024-01-15",
+            //     dt_updated: "2024-01-15",
+            //     name: "Sucursal Centro",
+            //     store_code: "SUC-001",
+            //     street: "Av. Revolución",
+            //     ext_number: "123",
+            //     int_number: "Local 4",
+            //     neighborhood: "Centro",
+            //     municipality: "Monterrey",
+            //     state: "Nuevo León",
+            //     postal_code: "64000",
+            //     country: "México",
+            //     latitude: 25.6866,
+            //     longitude: -100.3161,
+            // });
+        } catch (error) {
+            console.error("Error al cargar establecimiento:", error);
+            toast.error("Error al cargar los datos del establecimiento");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchEstablecimientoIdClient = async () => {
+        try {
+            setLoading(true);
+            const response = await getStoreClientById(Number(id_store_client));
+
+            console.log("respuesta peticion: ", response.data)
+
+            setEstablecimiento(response.data);
+
+            // Simulación - reemplazar con tu fetch real
+            // setEstablecimiento({
+            //     id_store_client: 1,
+            //     id_store: 1,
+            //     id_client: 1,
+            //     id_usercreator: 1,
+            //     i_status: true,
+            //     dt_created: "2024-01-15",
+            //     dt_updated: "2024-01-15",
+            //     name: "Sucursal Centro",
+            //     store_code: "SUC-001",
+            //     street: "Av. Revolución",
+            //     ext_number: "123",
+            //     int_number: "Local 4",
+            //     neighborhood: "Centro",
+            //     municipality: "Monterrey",
+            //     state: "Nuevo León",
+            //     postal_code: "64000",
+            //     country: "México",
+            //     latitude: 25.6866,
+            //     longitude: -100.3161,
+            // });
         } catch (error) {
             console.error("Error al cargar establecimiento:", error);
             toast.error("Error al cargar los datos del establecimiento");
@@ -196,6 +244,11 @@ export default function EstablecimientoDetalle() {
         setDeleting(true);
         try {
             // await deleteEstablecimiento(Number(id_store_client));
+
+            if(user?.id_client && user.id_client > 0){
+                await deleteStoreClient(Number(id_store_client))
+            }
+
             toast.success("Establecimiento eliminado correctamente");
             navigate("/establecimientos");
         } catch (error) {
@@ -258,8 +311,8 @@ export default function EstablecimientoDetalle() {
     }
 
     const markerPosition = {
-        lat: establecimiento.latitude,
-        lng: establecimiento.longitude,
+        lat: Number(establecimiento.latitude),
+        lng: Number(establecimiento.longitude),
     };
 
     return (
@@ -293,7 +346,7 @@ export default function EstablecimientoDetalle() {
                 </div>
 
                 <div className="flex gap-3">
-                    <Link to={`/establecimientos/${id_store_client}/editar`}>
+                    <Link to={`/establecimiento/${id_store_client}`}>
                         <Button variant="outline">
                             <Edit size={18} className="mr-2" />
                             Editar
