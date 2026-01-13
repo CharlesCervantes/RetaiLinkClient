@@ -24,6 +24,10 @@ import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { MensajeConfirmacion } from "../../components/mensajeConfirmaacion";
 
+import { useAuthStore } from '../../store/authStore'
+
+import { createStorepayload, CreateStorepayload, updateStoreClient, getStoreClientById } from '../../Fetch/establecimientos';
+
 type FormErrors = {
     [key: string]: string | null;
 };
@@ -148,9 +152,9 @@ function CustomMarker({ position, imageUrl, storeName }: CustomMarkerProps) {
 
 export default function Establecimiento() {
     const navigate = useNavigate();
-    const { id_store_client } = useParams();
+    const { id_store_client: id_store } = useParams();
 
-    const isEditMode = Boolean(id_store_client);
+    const isEditMode = Boolean(id_store);
 
     const [formData, setFormData] = useState<FormData>(initialFormData);
     const [originalData, setOriginalData] = useState<FormData>(initialFormData);
@@ -158,6 +162,7 @@ export default function Establecimiento() {
     const [loading, setLoading] = useState(false);
     const [loadingData, setLoadingData] = useState(isEditMode);
     const [showConfirm, setShowConfirm] = useState(false);
+    const [idClient, setIdClient] = useState(0);
 
     // Google Maps states
     const [map, setMap] = useState<google.maps.Map | null>(null);
@@ -170,16 +175,25 @@ export default function Establecimiento() {
     const [useStreetView, setUseStreetView] = useState(true);
     const [customImageFile, setCustomImageFile] = useState<File | null>(null);
 
+    const { user } = useAuthStore()
+
     const { isLoaded, loadError } = useJsApiLoader({
         googleMapsApiKey: GOOGLE_MAPS_API_KEY,
         libraries,
     });
 
     useEffect(() => {
-        if (isEditMode && id_store_client) {
-            fetchEstablecimiento();
+        if (isEditMode && id_store) {
+
+            console.log("usuario: ", user);
+
+            if(user?.id_client && user.id_client> 0){
+                fetchEstablecimientoByIdClient();
+            } else {
+                fetchEstablecimiento();
+            }
         }
-    }, [id_store_client]);
+    }, [id_store]);
 
     // Actualizar imagen de Street View cuando cambian las coordenadas
     useEffect(() => {
@@ -192,26 +206,34 @@ export default function Establecimiento() {
     const fetchEstablecimiento = async () => {
         try {
             setLoadingData(true);
-            // const response = await getEstablecimientoById(Number(id_store_client));
-            // const establecimiento = response.data;
+            const response = await getStoreClientById(Number(id_store));
+            
+            if (!response.ok) {
+                toast.error("Error al cargar el establecimiento");
+                navigate("/establecimientos");
+                return;
+            }
 
-            const establecimiento = {
-                name: "Sucursal Centro",
-                store_code: "SUC-001",
-                street: "Av. Constitución",
-                ext_number: "1000",
-                int_number: "",
-                neighborhood: "Centro",
-                municipality: "Monterrey",
-                state: "Nuevo León",
-                postal_code: "64000",
-                country: "México",
-                latitude: "25.6714",
-                longitude: "-100.3095",
+            const establecimiento = response.data;
+
+            const formDataFromApi: FormData = {
+                name: establecimiento.name || "",
+                store_code: establecimiento.store_code || "",
+                street: establecimiento.street || "",
+                ext_number: establecimiento.ext_number || "",
+                int_number: establecimiento.int_number || "",
+                neighborhood: establecimiento.neighborhood || "",
+                municipality: establecimiento.municipality || "",
+                state: establecimiento.state || "",
+                postal_code: establecimiento.postal_code || "",
+                country: establecimiento.country || "",
+                latitude: establecimiento.latitude?.toString() || "",
+                longitude: establecimiento.longitude?.toString() || "",
             };
 
-            setFormData(establecimiento);
-            setOriginalData(establecimiento);
+            setFormData(formDataFromApi);
+            setOriginalData(formDataFromApi);
+            setIdClient(establecimiento.id_client);
 
             if (establecimiento.latitude && establecimiento.longitude) {
                 setMarkerPosition({
@@ -223,6 +245,57 @@ export default function Establecimiento() {
         } catch (error) {
             console.error("Error al cargar establecimiento:", error);
             toast.error("Error al cargar los datos del establecimiento");
+            navigate("/establecimientos");
+        } finally {
+            setLoadingData(false);
+        }
+    };
+
+    const fetchEstablecimientoByIdClient = async () => {
+        try {
+            setLoadingData(true);
+            const response = await getStoreClientById(Number(id_store));
+
+            console.log("respuesta: ", response);
+            
+            if (!response.ok) {
+                toast.error("Error al cargar el establecimiento");
+                navigate("/establecimientos");
+                return;
+            }
+
+            const establecimiento = response.data;
+
+            const formDataFromApi: FormData = {
+                name: establecimiento.name || "",
+                store_code: establecimiento.store_code || "",
+                street: establecimiento.street || "",
+                ext_number: establecimiento.ext_number || "",
+                int_number: establecimiento.int_number || "",
+                neighborhood: establecimiento.neighborhood || "",
+                municipality: establecimiento.municipality || "",
+                state: establecimiento.state || "",
+                postal_code: establecimiento.postal_code || "",
+                country: establecimiento.country || "",
+                latitude: establecimiento.latitude?.toString() || "",
+                longitude: establecimiento.longitude?.toString() || "",
+            };
+
+            setFormData(formDataFromApi);
+            setOriginalData(formDataFromApi);
+            setIdClient(establecimiento.id_client);
+
+            if (establecimiento.latitude && establecimiento.longitude) {
+                setMarkerPosition({
+                    lat: parseFloat(establecimiento.latitude),
+                    lng: parseFloat(establecimiento.longitude),
+                });
+                setShowMap(true);
+            }
+        } catch (error) {
+            console.error("Error al cargar establecimiento:", error);
+            toast.error("Error al cargar los datos del establecimiento");
+            navigate("/establecimientos");
         } finally {
             setLoadingData(false);
         }
@@ -419,23 +492,43 @@ export default function Establecimiento() {
         setLoading(true);
 
         try {
-            const dataToSend = {
-                ...formData,
+            const store_payload: CreateStorepayload = {
+                id_client: user?.i_rol === 1 ? idClient : user?.id_client || 0, 
+                id_user_creator: user?.id_user || 0,
+                name: formData.name,
+                store_code: formData.store_code,
+                street: formData.street,
+                ext_number: formData.ext_number,
+                int_number: formData.int_number,
+                neighborhood: formData.neighborhood,
+                municipality: formData.municipality,
+                state: formData.state,
+                postal_code: formData.postal_code,
+                country: formData.country,
                 latitude: parseFloat(formData.latitude),
                 longitude: parseFloat(formData.longitude),
             };
 
-            // Si hay imagen personalizada, subirla
-            // if (customImageFile) {
-            //     await uploadStoreImage(customImageFile);
-            // }
+            let resp;
 
             if (isEditMode) {
-                // await updateEstablecimiento(Number(id_store_client), dataToSend);
-                toast.success("Establecimiento actualizado correctamente");
+                resp = await updateStoreClient(Number(id_store), store_payload);
+                
+                if (resp.ok) {
+                    toast.success("Establecimiento actualizado correctamente");
+                } else {
+                    toast.error(resp.message || "Error al actualizar");
+                    return;
+                }
             } else {
-                // await createEstablecimiento(dataToSend);
-                toast.success("Establecimiento creado correctamente");
+                resp = await createStorepayload(store_payload);
+                
+                if (resp.ok) {
+                    toast.success("Establecimiento creado correctamente");
+                } else {
+                    toast.error(resp.message || "Error al crear");
+                    return;
+                }
             }
 
             navigate("/establecimientos");
