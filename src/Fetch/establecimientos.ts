@@ -288,3 +288,29 @@ export const deleteStoreClient = async (id_store_client: number) => {
         throw error;
     }
 }
+
+export const uploadStoresFromExcel = async (id_client: number, id_user: number, file: File) => {
+    try {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("id_client", id_client.toString());
+        formData.append("id_user", id_user.toString());
+
+        const response = await fetch(`${API_URL}/admin/stores/import-excel`, {
+            method: "POST",
+            body: formData,
+        });
+
+        if (!response.ok) {
+            const contentType = response.headers.get("content-type") || "";
+            const data = contentType.includes("application/json") ? await response.json() : await response.text();
+            console.error("Upload Excel error:", data);
+            throw new Error(typeof data === "string" ? data : data?.details || data?.message || "Error al procesar Excel");
+        }
+
+        return response.json();
+    } catch (error) {
+        console.error("Error en uploadStoresFromExcel:", error);
+        throw error;
+    }
+}
