@@ -193,7 +193,9 @@ export function EstablecimientosAdministradoresClients() {
                         </Button>
                     </Link>
 
-                    <EstablecimientoModalRegistroMasivo />
+                    <EstablecimientoModalRegistroMasivo 
+                        onSuccess={() => fetchEstablecimientos()}
+                    />
                 </div>
             </div>
 
