@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { EstablecimientosAdministradoresClients } from './EstablecimientosAdministradoresClients'
+import { EstablecimientosSuperAdmin } from './EstablecimientosSuperAdmin'
 
 import { useAuthStore } from '../../store/authStore';
 
@@ -13,7 +14,7 @@ const Establecimientos: React.FC = () => {
 
         { (user?.i_rol === 1) && (
           <>
-            <p>Establecimientos superadmin</p>
+            <EstablecimientosSuperAdmin />
           </>
         )}
 
