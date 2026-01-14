@@ -48,139 +48,52 @@ const getAuthHeaders = () => {
     } as HeadersInit;
 };
 
-// Crear un nuevo establecimiento
-export const createEstablecimiento = async (establecimiento: Establecimiento): Promise<ApiResponse<{ id: number }>> => {
+// -------------------------------------- SUPERADMIN
+
+export const getStores = async () => {
     try {
-        const response = await fetch(`${API_URL}/superadmin/create-establecimiento`, {
-            method: 'POST',
-            headers: getAuthHeaders(),
-            body: JSON.stringify({ establecimiento }),
+        const response = await fetch(`${API_URL}/superadmin/stores`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+        });
+    
+        if (!response.ok) {
+            const contentType = response.headers.get("content-type") || "";
+            const data = contentType.includes("application/json") ? await response.json() : await response.text();
+    
+            console.error("GetStores error:", data);
+            throw new Error(typeof data === "string" ? data : data?.details || data?.message || "Error al obtener establecimientos");
+        }
+    
+        return response.json();
+    } catch (error) {
+        console.error("Error en getStoresForClient:", error);
+        throw error;
+    }
+}
+
+export const getStoreById = async (id_store: number) => {
+    try {
+        const response = await fetch(`${API_URL}/superadmin/stores/${id_store}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Error al crear establecimiento');
+            const contentType = response.headers.get("content-type") || "";
+            const data = contentType.includes("application/json") ? await response.json() : await response.text();
+            console.error("GetStoreClient error:", data);
+            throw new Error(typeof data === "string" ? data : data?.details || data?.message || "Error al obtener establecimiento");
         }
 
-        return await response.json();
+        return response.json();
     } catch (error) {
-        console.error('Error en createEstablecimiento:', error);
-        return {
-            ok: false,
-            data: null,
-            message: error instanceof Error ? error.message : 'Error desconocido'
-        };
+        console.error("Error en getStoreClientById:", error);
+        throw error;
     }
-};
+}
 
-// Obtener un establecimiento por ID
-export const getEstablecimientoById = async (id: number): Promise<ApiResponse<Establecimiento>> => {
-    try {
-        const response = await fetch(`${API_URL}/superadmin/get-establecimiento/${id}`, {
-            method: 'GET',
-            headers: getAuthHeaders(),
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Error al obtener establecimiento');
-        }
-
-        return await response.json();
-    } catch (error) {
-        console.error('Error en getEstablecimientoById:', error);
-        return {
-            ok: false,
-            data: null,
-            message: error instanceof Error ? error.message : 'Error desconocido'
-        };
-    }
-};
-
-// Obtener todos los establecimientos
-export const getAllEstablecimientos = async (search?: string): Promise<ApiResponse<Establecimiento[]>> => {
-    try {
-        const url = new URL(`${API_URL}/superadmin/get-all-establecimientos`);
-        if (search) {
-            url.searchParams.append('search', search);
-        }
-
-        const response = await fetch(url.toString(), {
-            method: 'GET',
-            headers: getAuthHeaders(),
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Error al obtener establecimientos');
-        }
-
-        return await response.json();
-    } catch (error) {
-        console.error('Error en getAllEstablecimientos:', error);
-        return {
-            ok: false,
-            data: null,
-            message: error instanceof Error ? error.message : 'Error desconocido'
-        };
-    }
-};
-
-// Actualizar un establecimiento
-export const updateEstablecimiento = async (id: number, establecimiento: Partial<Establecimiento>): Promise<ApiResponse<Establecimiento>> => {
-    try {
-        const response = await fetch(`${API_URL}/superadmin/update-establecimiento/${id}`, {
-            method: 'PUT',
-            headers: getAuthHeaders(),
-            body: JSON.stringify({ establecimiento }),
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Error al actualizar establecimiento');
-        }
-
-        return await response.json();
-    } catch (error) {
-        console.error('Error en updateEstablecimiento:', error);
-        return {
-            ok: false,
-            data: null,
-            message: error instanceof Error ? error.message : 'Error desconocido'
-        };
-    }
-};
-
-// Eliminar un establecimiento (eliminación lógica)
-export const deleteEstablecimiento = async (id: number): Promise<ApiResponse<null>> => {
-    try {
-        const response = await fetch(`${API_URL}/superadmin/delete-establecimiento/${id}`, {
-            method: 'DELETE',
-            headers: getAuthHeaders(),
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Error al eliminar establecimiento');
-        }
-
-        return await response.json();
-    } catch (error) {
-        console.error('Error en deleteEstablecimiento:', error);
-        return {
-            ok: false,
-            data: null,
-            message: error instanceof Error ? error.message : 'Error desconocido'
-        };
-    }
-};
-
-// Buscar establecimientos
-export const searchEstablecimientos = async (searchTerm: string): Promise<ApiResponse<Establecimiento[]>> => {
-    return getAllEstablecimientos(searchTerm);
-};
-
-// ------------------------------------- NUEVAS PETICIONES
+// ------------------------------------- NORMAL ADMIN
 export const createStorepayload = async (payload: CreateStorepayload) => {
     try {
         const response = await fetch(`${API_URL}/admin/store`, {
