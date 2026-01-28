@@ -184,14 +184,7 @@ export default function Establecimiento() {
 
     useEffect(() => {
         if (isEditMode && id_store) {
-
-            console.log("usuario: ", user);
-
-            if(user?.id_client && user.id_client> 0){
-                fetchEstablecimientoByIdClient();
-            } else {
-                fetchEstablecimiento();
-            }
+            fetchEstablecimiento();
         }
     }, [id_store]);
 
@@ -207,8 +200,8 @@ export default function Establecimiento() {
         try {
             setLoadingData(true);
             const response = await getStoreClientById(Number(id_store));
-            
-            if (!response.ok) {
+
+            if (!response.ok || !response.data) {
                 toast.error("Error al cargar el establecimiento");
                 navigate("/establecimientos");
                 return;
@@ -233,62 +226,12 @@ export default function Establecimiento() {
 
             setFormData(formDataFromApi);
             setOriginalData(formDataFromApi);
-            setIdClient(establecimiento.id_client);
+            setIdClient(establecimiento.id_client || 0);
 
             if (establecimiento.latitude && establecimiento.longitude) {
                 setMarkerPosition({
-                    lat: parseFloat(establecimiento.latitude),
-                    lng: parseFloat(establecimiento.longitude),
-                });
-                setShowMap(true);
-            }
-        } catch (error) {
-            console.error("Error al cargar establecimiento:", error);
-            toast.error("Error al cargar los datos del establecimiento");
-            navigate("/establecimientos");
-        } finally {
-            setLoadingData(false);
-        }
-    };
-
-    const fetchEstablecimientoByIdClient = async () => {
-        try {
-            setLoadingData(true);
-            const response = await getStoreClientById(Number(id_store));
-
-            console.log("respuesta: ", response);
-            
-            if (!response.ok) {
-                toast.error("Error al cargar el establecimiento");
-                navigate("/establecimientos");
-                return;
-            }
-
-            const establecimiento = response.data;
-
-            const formDataFromApi: FormData = {
-                name: establecimiento.name || "",
-                store_code: establecimiento.store_code || "",
-                street: establecimiento.street || "",
-                ext_number: establecimiento.ext_number || "",
-                int_number: establecimiento.int_number || "",
-                neighborhood: establecimiento.neighborhood || "",
-                municipality: establecimiento.municipality || "",
-                state: establecimiento.state || "",
-                postal_code: establecimiento.postal_code || "",
-                country: establecimiento.country || "",
-                latitude: establecimiento.latitude?.toString() || "",
-                longitude: establecimiento.longitude?.toString() || "",
-            };
-
-            setFormData(formDataFromApi);
-            setOriginalData(formDataFromApi);
-            setIdClient(establecimiento.id_client);
-
-            if (establecimiento.latitude && establecimiento.longitude) {
-                setMarkerPosition({
-                    lat: parseFloat(establecimiento.latitude),
-                    lng: parseFloat(establecimiento.longitude),
+                    lat: establecimiento.latitude,
+                    lng: establecimiento.longitude,
                 });
                 setShowMap(true);
             }

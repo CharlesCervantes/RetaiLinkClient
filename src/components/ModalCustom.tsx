@@ -10,20 +10,35 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../components/ui/dialog"
-
-
 export interface ModalCustomProps {
-    buttonTitle: string;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+    buttonTitle?: string;
     dialogTitle: string;
     dialogDescription: string;
-
     body: React.ReactNode;
     onSubmit?: () => Promise<boolean> | boolean;
     isLoading?: boolean;
+    showTrigger?: boolean;
+    size?: 'sm' | 'md' | 'lg' | 'xl' | 'full'; // Nuevo: tamaño del modal
 }
 
-export function ModalCustom({ buttonTitle, dialogTitle, dialogDescription, body, onSubmit, isLoading = false }: ModalCustomProps) {
-  const [open, setOpen] = useState(false);
+export function ModalCustom({ 
+    open: controlledOpen,
+    onOpenChange: controlledOnOpenChange,
+    buttonTitle, 
+    dialogTitle, 
+    dialogDescription, 
+    body, 
+    onSubmit, 
+    isLoading = false,
+    showTrigger = true,
+    size = 'sm' // Default: tamaño pequeño
+}: ModalCustomProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = controlledOnOpenChange || setInternalOpen;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,14 +51,25 @@ export function ModalCustom({ buttonTitle, dialogTitle, dialogDescription, body,
     }
   };
 
+  // Mapeo de tamaños
+  const sizeClasses = {
+    sm: 'sm:max-w-[425px]',
+    md: 'sm:max-w-2xl',
+    lg: 'sm:max-w-4xl',
+    xl: 'sm:max-w-6xl',
+    full: 'sm:max-w-[95vw]'
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          <Button variant="outline">{buttonTitle}</Button>
-        </DialogTrigger>
+        {showTrigger && (
+          <DialogTrigger asChild>
+            <Button variant="outline">{buttonTitle}</Button>
+          </DialogTrigger>
+        )}
 
-        <DialogContent className="sm:max-w-[425px]">
-          <form onSubmit={handleSubmit}>
+        <DialogContent className={`${sizeClasses[size]} max-h-[90vh] flex flex-col`}>
+          <form onSubmit={handleSubmit} className="flex flex-col h-full">
             <DialogHeader>
               <DialogTitle>{dialogTitle}</DialogTitle>
               <DialogDescription>
@@ -51,13 +77,15 @@ export function ModalCustom({ buttonTitle, dialogTitle, dialogDescription, body,
               </DialogDescription>
             </DialogHeader>
 
-            <div className="py-4">
+            <div className="flex-1 overflow-y-auto py-4">
               {body}
             </div>
             
             <DialogFooter>
               <DialogClose asChild>
-                <Button type="button" variant="outline">Cancelar</Button>
+                <Button type="button" variant="outline" disabled={isLoading}>
+                  Cancelar
+                </Button>
               </DialogClose>
               <Button type="submit" disabled={isLoading}>
                 {isLoading ? "Guardando..." : "Guardar"}
