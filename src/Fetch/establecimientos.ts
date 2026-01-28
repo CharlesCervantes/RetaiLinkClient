@@ -1,24 +1,15 @@
-import { useAuthStore } from "../store/authStore";
+import { api } from "../lib/api";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
-
-export interface Establecimiento {
-    id_establecimiento?: number;
-    vc_nombre: string;
-    vc_direccion?: string;
-    vc_num_economico?: string; // numero de serie o identificador del establecimiento
-    vc_telefono?: string;
-    vc_marca?: string; // marca del establecimiento
-    i_latitud?: number; // latitud del establecimiento
-    i_longitud?: number; // longitud del establecimiento
-    b_estatus?: boolean; // estado del establecimiento
-    dt_registro?: number; // fecha de registro
-    dt_actualizacion?: number; // fecha de actualizacion
-}
-
-export interface CreateStorepayload {
-    id_client: number;
-    id_user_creator: number; 
+// Interface para Store (usado en vistas)
+export interface Store {
+    id_store: number;
+    id_store_client?: number;
+    id_client?: number;
+    id_user?: number;
+    id_user_creator?: number;
+    i_status: boolean;
+    dt_register: string;
+    dt_updated: string;
     name: string;
     store_code: string;
     street: string;
@@ -29,8 +20,40 @@ export interface CreateStorepayload {
     state: string;
     postal_code: string;
     country: string;
-    latitude: number,
-    longitude: number,
+    latitude: number;
+    longitude: number;
+}
+
+// Interface legacy para compatibilidad con componentes antiguos
+export interface Establecimiento {
+    id_establecimiento?: number;
+    vc_nombre: string;
+    vc_direccion?: string;
+    vc_num_economico?: string;
+    vc_telefono?: string;
+    vc_marca?: string;
+    i_latitud?: number;
+    i_longitud?: number;
+    b_estatus?: boolean;
+    dt_registro?: number;
+    dt_actualizacion?: number;
+}
+
+export interface CreateStorepayload {
+    id_client: number;
+    id_user_creator: number;
+    name: string;
+    store_code: string;
+    street: string;
+    ext_number: string;
+    int_number: string;
+    neighborhood: string;
+    municipality: string;
+    state: string;
+    postal_code: string;
+    country: string;
+    latitude: number;
+    longitude: number;
 }
 
 export interface ApiResponse<T> {
@@ -39,191 +62,55 @@ export interface ApiResponse<T> {
     message: string;
 }
 
-// Headers con autenticación
-const getAuthHeaders = () => {
-    const token = useAuthStore.getState().token;
-    return {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    } as HeadersInit;
-};
-
 // -------------------------------------- SUPERADMIN
 
-export const getStores = async () => {
-    try {
-        const response = await fetch(`${API_URL}/superadmin/stores`, {
-            method: "GET",
-            headers: { "Content-Type": "application/json" },
-        });
-    
-        if (!response.ok) {
-            const contentType = response.headers.get("content-type") || "";
-            const data = contentType.includes("application/json") ? await response.json() : await response.text();
-    
-            console.error("GetStores error:", data);
-            throw new Error(typeof data === "string" ? data : data?.details || data?.message || "Error al obtener establecimientos");
-        }
-    
-        return response.json();
-    } catch (error) {
-        console.error("Error en getStoresForClient:", error);
-        throw error;
-    }
-}
+export const getStores = async (): Promise<ApiResponse<Store[]>> => {
+    return api.get<ApiResponse<Store[]>>("/superadmin/stores");
+};
 
-export const getStoreById = async (id_store: number) => {
-    try {
-        const response = await fetch(`${API_URL}/superadmin/stores/${id_store}`, {
-            method: "GET",
-            headers: { "Content-Type": "application/json" },
-        });
+export const getStoreById = async (id_store: number): Promise<ApiResponse<Store>> => {
+    return api.get<ApiResponse<Store>>(`/superadmin/stores/${id_store}`);
+};
 
-        if (!response.ok) {
-            const contentType = response.headers.get("content-type") || "";
-            const data = contentType.includes("application/json") ? await response.json() : await response.text();
-            console.error("GetStoreClient error:", data);
-            throw new Error(typeof data === "string" ? data : data?.details || data?.message || "Error al obtener establecimiento");
-        }
-
-        return response.json();
-    } catch (error) {
-        console.error("Error en getStoreClientById:", error);
-        throw error;
-    }
-}
+// Eliminar store (SuperAdmin)
+export const deleteStore = async (id_store: number): Promise<ApiResponse<null>> => {
+    return api.delete<ApiResponse<null>>(`/superadmin/stores/${id_store}`);
+};
 
 // ------------------------------------- NORMAL ADMIN
-export const createStorepayload = async (payload: CreateStorepayload) => {
-    try {
-        const response = await fetch(`${API_URL}/admin/store`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-        });
-    
-        if (!response.ok) {
-            const contentType = response.headers.get("content-type") || "";
-            const data = contentType.includes("application/json") ? await response.json() : await response.text();
-    
-            console.error("CreateStore error payload:", data);
-            throw new Error( typeof data === "string" ? data : data?.details || data?.message || "Error al crear producto");
-        }
-    
-        return response.json();
-    } catch (error) {
-        return  error
-    }
-}
 
-export const getStoresForClient = async (id_client: number) => {
-    try {
-        const response = await fetch(`${API_URL}/admin/stores/${id_client}`, {
-            method: "GET",
-            headers: { "Content-Type": "application/json" },
-        });
-    
-        if (!response.ok) {
-            const contentType = response.headers.get("content-type") || "";
-            const data = contentType.includes("application/json") ? await response.json() : await response.text();
-    
-            console.error("GetStores error:", data);
-            throw new Error(typeof data === "string" ? data : data?.details || data?.message || "Error al obtener establecimientos");
-        }
-    
-        return response.json();
-    } catch (error) {
-        console.error("Error en getStoresForClient:", error);
-        throw error;
-    }
-}
+export const createStorepayload = async (payload: CreateStorepayload): Promise<ApiResponse<Store>> => {
+    return api.post<ApiResponse<Store>>("/admin/store", payload);
+};
 
-export const getStoreClientById = async (id_store_client: number) => {
-    try {
-        const response = await fetch(`${API_URL}/admin/store-client/${id_store_client}`, {
-            method: "GET",
-            headers: { "Content-Type": "application/json" },
-        });
+export const getStoresForClient = async (id_client: number): Promise<ApiResponse<Store[]>> => {
+    return api.get<ApiResponse<Store[]>>(`/admin/stores/${id_client}`);
+};
 
-        if (!response.ok) {
-            const contentType = response.headers.get("content-type") || "";
-            const data = contentType.includes("application/json") ? await response.json() : await response.text();
-            console.error("GetStoreClient error:", data);
-            throw new Error(typeof data === "string" ? data : data?.details || data?.message || "Error al obtener establecimiento");
-        }
+export const getStoreClientById = async (id_store_client: number): Promise<ApiResponse<Store>> => {
+    return api.get<ApiResponse<Store>>(`/admin/store-client/${id_store_client}`);
+};
 
-        return response.json();
-    } catch (error) {
-        console.error("Error en getStoreClientById:", error);
-        throw error;
-    }
-}
+export const updateStoreClient = async (
+    id_store_client: number,
+    payload: CreateStorepayload
+): Promise<ApiResponse<Store>> => {
+    return api.put<ApiResponse<Store>>(`/admin/store-client/${id_store_client}`, payload);
+};
 
-export const updateStoreClient = async (id_store_client: number, payload: CreateStorepayload) => {
-    try {
-        const response = await fetch(`${API_URL}/admin/store-client/${id_store_client}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-        });
+export const deleteStoreClient = async (id_store_client: number): Promise<ApiResponse<null>> => {
+    return api.delete<ApiResponse<null>>(`/admin/store-client/${id_store_client}`);
+};
 
-        if (!response.ok) {
-            const contentType = response.headers.get("content-type") || "";
-            const data = contentType.includes("application/json") ? await response.json() : await response.text();
-            console.error("UpdateStoreClient error:", data);
-            throw new Error(typeof data === "string" ? data : data?.details || data?.message || "Error al actualizar establecimiento");
-        }
+export const uploadStoresFromExcel = async (
+    id_client: number,
+    id_user: number,
+    file: File
+): Promise<ApiResponse<{ success: number; failed: number; errors?: unknown[] }>> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("id_client", id_client.toString());
+    formData.append("id_user", id_user.toString());
 
-        return response.json();
-    } catch (error) {
-        console.error("Error en updateStoreClient:", error);
-        throw error;
-    }
-}
-
-export const deleteStoreClient = async (id_store_client: number) => {
-    try {
-        const response = await fetch(`${API_URL}/admin/store-client/${id_store_client}`, {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-        });
-
-        if (!response.ok) {
-            const contentType = response.headers.get("content-type") || "";
-            const data = contentType.includes("application/json") ? await response.json() : await response.text();
-            console.error("deleteStoreClient error:", data);
-            throw new Error(typeof data === "string" ? data : data?.details || data?.message || "Error al actualizar establecimiento");
-        }
-
-        return response.json();
-    } catch (error) {
-        console.error("Error en deleteStoreClient:", error);
-        throw error;
-    }
-}
-
-export const uploadStoresFromExcel = async (id_client: number, id_user: number, file: File) => {
-    try {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("id_client", id_client.toString());
-        formData.append("id_user", id_user.toString());
-
-        const response = await fetch(`${API_URL}/admin/stores/import-excel`, {
-            method: "POST",
-            body: formData,
-        });
-
-        if (!response.ok) {
-            const contentType = response.headers.get("content-type") || "";
-            const data = contentType.includes("application/json") ? await response.json() : await response.text();
-            console.error("Upload Excel error:", data);
-            throw new Error(typeof data === "string" ? data : data?.details || data?.message || "Error al procesar Excel");
-        }
-
-        return response.json();
-    } catch (error) {
-        console.error("Error en uploadStoresFromExcel:", error);
-        throw error;
-    }
-}
+    return api.upload<ApiResponse<{ success: number; failed: number }>>("/admin/stores/import-excel", formData);
+};

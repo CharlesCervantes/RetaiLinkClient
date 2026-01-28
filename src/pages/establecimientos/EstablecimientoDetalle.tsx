@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import {
     ArrowLeft,
     Loader2,
-    Store,
+    Store as StoreIcon,
     MapPin,
     Hash,
     Edit,
@@ -21,29 +21,7 @@ import {
 import { useAuthStore } from '../../store/authStore'
 import { Button } from "../../components/ui/button";
 import { MensajeConfirmacion } from "../../components/mensajeConfirmaacion";
-import { getStoreClientById, deleteStoreClient, getStoreById } from "../../Fetch/establecimientos";
-
-interface Establecimiento {
-    id_store_client: number;
-    id_store: number;
-    id_client: number;
-    id_usercreator: number;
-    i_status: boolean;
-    dt_created: string;
-    dt_updated: string;
-    name: string;
-    store_code: string;
-    street: string;
-    ext_number: string;
-    int_number: string;
-    neighborhood: string;
-    municipality: string;
-    state: string;
-    postal_code: string;
-    country: string;
-    latitude: number;
-    longitude: number;
-}
+import { getStoreClientById, deleteStoreClient, getStoreById, Store } from "../../Fetch/establecimientos";
 
 const libraries: ("places")[] = ["places"];
 const mapContainerStyle = {
@@ -90,7 +68,7 @@ function CustomMarker({ position, imageUrl, storeName }: CustomMarkerProps) {
                             />
                         ) : (
                             <div className="w-full h-full flex items-center justify-center">
-                                <Store size={28} className="text-gray-300" />
+                                <StoreIcon size={28} className="text-gray-300" />
                             </div>
                         )}
                     </div>
@@ -133,10 +111,10 @@ export default function EstablecimientoDetalle() {
     const { id_store_client } = useParams();
     const { user } = useAuthStore()
 
-    const [establecimiento, setEstablecimiento] = useState<Establecimiento | null>(null);
+    const [establecimiento, setEstablecimiento] = useState<Store | null>(null);
     const [loading, setLoading] = useState(true);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-    const [deleting, setDeleting] = useState(false);
+    const [_deleting, setDeleting] = useState(false);
     const [storeImage, setStoreImage] = useState<string | null>(null);
 
     const { isLoaded } = useJsApiLoader({
@@ -247,7 +225,7 @@ export default function EstablecimientoDetalle() {
     if (!establecimiento) {
         return (
             <div className="text-center py-12">
-                <Store size={48} className="mx-auto text-gray-300 mb-4" />
+                <StoreIcon size={48} className="mx-auto text-gray-300 mb-4" />
                 <p className="text-gray-500">Establecimiento no encontrado</p>
                 <Button className="mt-4" onClick={() => navigate("/establecimientos")}>
                     Volver a establecimientos
@@ -325,7 +303,7 @@ export default function EstablecimientoDetalle() {
                             />
                         ) : (
                             <div className="w-full h-full flex items-center justify-center">
-                                <Store size={48} className="text-gray-300" />
+                                <StoreIcon size={48} className="text-gray-300" />
                             </div>
                         )}
                         {/* Badge de estado */}
@@ -342,7 +320,7 @@ export default function EstablecimientoDetalle() {
 
                     <div className="p-6">
                         <div className="flex items-center gap-2 mb-4">
-                            <Store size={20} className="text-gray-600" />
+                            <StoreIcon size={20} className="text-gray-600" />
                             <h2 className="text-lg font-medium">Información General</h2>
                         </div>
 
@@ -455,7 +433,7 @@ export default function EstablecimientoDetalle() {
                         <div>
                             <p className="text-sm text-gray-500">Fecha de Creación</p>
                             <p className="font-medium">
-                                {new Date(establecimiento.dt_created).toLocaleDateString("es-MX")}
+                                {new Date(establecimiento.dt_register).toLocaleDateString("es-MX")}
                             </p>
                         </div>
                         <div>

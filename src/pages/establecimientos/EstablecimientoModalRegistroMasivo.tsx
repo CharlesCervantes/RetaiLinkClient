@@ -74,7 +74,7 @@ export function EstablecimientoModalRegistroMasivo({ id_client, onSuccess }: Pro
             if (result.ok) {
                 toast.success(result.message);
 
-                if (result.data?.failed > 0) {
+                if (result.data && result.data.failed && result.data.failed > 0) {
                     toast.warning(`${result.data.failed} registros no se pudieron importar`);
                     console.log("Errores de importación:", result.data.errors);
                 }

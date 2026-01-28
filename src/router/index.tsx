@@ -13,6 +13,11 @@ import ProductDetail from "../pages/productos/ProductDetail";
 import Establecimientos from "../pages/establecimientos/Establecimientos";
 import Establecimiento from "../pages/establecimientos/Establecimiento";
 import EstablecimientoDetalle from "../pages/establecimientos/EstablecimientoDetalle";
+import Preguntas from "../pages/preguntas/Preguntas";
+import PreguntaDetalle from "../pages/preguntas/PreguntaDetalle";
+import Cotizaciones from "../pages/cotizaciones/Cotizaciones";
+import CotizacionDetalle from "../pages/cotizaciones/CotizacionDetalle";
+import Servicios from "../pages/servicios/servicios";
 
 export default function AppRouter() {
   return (
@@ -43,6 +48,14 @@ export default function AppRouter() {
           <Route path="establecimiento" element={<Establecimiento />} />
           <Route path="establecimiento/:id_store_client" element={<Establecimiento />} />
           <Route path="establecimiento/detalle/:id_store_client" element={<EstablecimientoDetalle />} />
+          <Route path="preguntas" element={<Preguntas />} />
+          <Route path="preguntas/detalle/:id" element={<PreguntaDetalle />} />
+
+
+          <Route path="cotizaciones" element={<Cotizaciones />} />
+          <Route path="cotizaciones/detalle/:id" element={<CotizacionDetalle />} />
+
+          <Route path="servicios" element={<Servicios />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir /B \"c:\\\\Users\\\\Edgar\\\\Documents\\\\software_dev\\\\RetaiLinkClient\")",
+      "Bash(findstr:*)",
+      "Bash(dir /B \"c:\\\\Users\\\\Edgar\\\\Documents\\\\software_dev\\\\RetaiLinkClient\\\\src\")",
+      "Bash(npm run type-check:*)"
+    ]
+  }
+}

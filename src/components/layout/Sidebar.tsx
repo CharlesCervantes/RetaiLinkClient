@@ -12,6 +12,8 @@ import {
   ChevronLeft,
   HomeIcon,
   icons,
+  FileText,
+  Ticket
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import LogoutButton from "../LogoutButton";
@@ -77,6 +79,18 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
       icon: FileQuestionIcon,
       label: "Preguntas",
       show: user?.i_rol === 1,
+    },
+    {
+      route: "/cotizacciones",
+      icon: FileText,
+      label: "Cotizaciones",
+      show: user?.i_rol === 1 || user?.i_rol === 2,
+    },
+    {
+      route: "/servicios",
+      icon: Ticket,
+      label: "Servicios",
+      show: user?.i_rol === 1 || user?.i_rol === 2,
     },
   ];
 
