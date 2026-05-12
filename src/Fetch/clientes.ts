@@ -1,3 +1,5 @@
+import { useAuthStore } from "../stores/authStore";
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 interface ClientData {
@@ -6,12 +8,24 @@ interface ClientData {
   rfc?: string;
   email?: string;
   phone?: string;
-  address?: string;
-  city?: string;
-  state?: string;
+  id_pais?: number;
+  id_estado?: number;
+  id_ciudad?: number;
+  street?: string;
+  ext_number?: string;
+  int_number?: string;
+  neighborhood?: string;
   zip?: string;
   addiccional_notes?: string;
 }
+
+const getAuthHeaders = () => {
+  const token = useAuthStore.getState().token;
+  return {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${token}`,
+  };
+};
 
 export const registClient = async (data: ClientData) => {
     try {
@@ -56,5 +70,37 @@ export const getClientById = async (id: number) => {
         return res.json();
     } catch (error) {
         console.error("f.getClientById:", error);
+    }
+}
+
+export const updateClientFiscalDoc = async (id: number, url: string) => {
+    try {
+        const res = await fetch(`${API_URL}/superadmin/client/${id}`, {
+            method: "PATCH",
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ vc_url_situacion_fiscal: url }),
+        });
+
+        if (!res.ok) throw new Error("Error al actualizar el documento fiscal");
+
+        return res.json();
+    } catch (error) {
+        console.error("f.updateClientFiscalDoc:", error);
+        throw error;
+    }
+};
+
+export const deleteCLientById = async (id: number) => {
+    try{
+        const res = await fetch(`${API_URL}/superadmin/client/${id}`, {
+            method: "DELETE",
+            headers: getAuthHeaders(),
+        });
+
+        if (!res.ok) throw new Error("Error al eliminar el cliente");
+
+        return res.json();
+    } catch (error) {
+        console.error("f.deleteCLientById:", error);
     }
 }

@@ -44,7 +44,7 @@ import { Skeleton } from "./skeleton";
 import { DataTableProps } from "../../types/datable";
 import { DataTablePagination } from "./datatable-pagination";
 import { DataTableFilters } from "./datatable-filters";
-import { exportToExcel } from "../../utils/datatable";
+import { exportToExcel } from "../../lib/datatable";
 
 // ============================================================================
 // HOOK PARA MEDIR ANCHO DEL CONTENEDOR
@@ -703,5 +703,5 @@ export {
   DataTableColumnHeader,
   DataTableSortableHeader,
 } from "./datatable-columnheader";
-export { exportToExcel } from "../../utils/datatable";
+export { exportToExcel } from "../../lib/datatable";
 export * from "../../types/datable";

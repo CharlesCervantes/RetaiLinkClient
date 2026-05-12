@@ -29,7 +29,7 @@ import {
 } from "./command";
 
 import { FiltersConfig, FilterConfig, FilterOption } from "../../types/datable";
-import { debounce } from "../../utils/datatable";
+import { debounce } from "../../lib/datatable";
 
 interface DataTableFiltersProps {
   config: FiltersConfig;

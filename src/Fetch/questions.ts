@@ -134,6 +134,11 @@ export interface AssignQuestionPayload {
     client_promoter_earns?: number;
 }
 
+export interface AssignClientsPayload {
+    id_user: number;
+    clients: number[];
+}
+
 export interface ApiResponse<T> {
     ok: boolean;
     data: T | null;
@@ -201,6 +206,16 @@ export const assignQuestionToClient = async (
         `/superadmin/questions/${id_question}/clients/${id_client}`,
         payload
     );
+};
+
+/**
+ * Asignar múltiples clientes a una pregunta (reemplaza asignaciones anteriores)
+ */
+export const assignClientsToQuestion = async (
+    id_question: number,
+    payload: AssignClientsPayload
+): Promise<ApiResponse<Question>> => {
+    return api.put<ApiResponse<Question>>(`/questions/assign-clients/${id_question}`, payload);
 };
 
 /**

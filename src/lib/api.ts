@@ -1,6 +1,28 @@
-import { useAuthStore } from "../store/authStore";
+import { useAuthStore } from "../stores/authStore";
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+
+/**
+ * Forma estándar de todas las respuestas del backend.
+ * - ok: true si la petición fue exitosa
+ * - error: 0 si no hay error
+ * - data: payload de la respuesta
+ * - message: mensaje descriptivo
+ */
+export interface ApiResponse<T = unknown> {
+  ok: boolean;
+  error: number;
+  data: T;
+  message?: string;
+}
+
+/**
+ * PUT vs PATCH:
+ *   PUT   → reemplaza el recurso COMPLETO. Debes enviar todos los campos,
+ *            aunque no cambien. Si omites un campo, puede quedar en null/vacío.
+ *   PATCH → actualiza PARCIALMENTE el recurso. Solo envías los campos que cambian.
+ *            Es la opción correcta para editar un campo individual.
+ */
 
 interface ApiError {
     message?: string;
@@ -61,6 +83,19 @@ export const api = {
     },
 
     /**
+     * Realiza una petición PATCH autenticada (actualización parcial)
+     */
+    async patch<T>(endpoint: string, body?: unknown): Promise<T> {
+        const response = await fetch(`${API_URL}${endpoint}`, {
+            method: "PATCH",
+            headers: this.getAuthHeaders(),
+            body: body ? JSON.stringify(body) : undefined,
+        });
+
+        return this.handleResponse<T>(response);
+    },
+
+    /**
      * Realiza una petición DELETE autenticada
      */
     async delete<T>(endpoint: string): Promise<T> {
@@ -91,7 +126,9 @@ export const api = {
      * Maneja la respuesta de la API
      */
     async handleResponse<T>(response: Response): Promise<T> {
-        if (!response.ok) {
+        // 304 Not Modified: el navegador devuelve la respuesta cacheada.
+        // Aunque response.ok es false para 304, el cuerpo sigue disponible.
+        if (!response.ok && response.status !== 304) {
             const contentType = response.headers.get("content-type") || "";
             const data: ApiError = contentType.includes("application/json")
                 ? await response.json()

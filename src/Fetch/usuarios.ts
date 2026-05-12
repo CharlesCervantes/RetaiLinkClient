@@ -1,6 +1,4 @@
-import { useAuthStore } from "../store/authStore";
-
-const API_URL = import.meta.env.VITE_API_URL;
+import { api, ApiResponse } from "../lib/api";
 
 export interface Usuario {
   id_usuario: number;
@@ -15,47 +13,38 @@ export interface Usuario {
   i_rol?: number;
 }
 
-type ApiResponse<T> = {
-  error: boolean;
-  ok: boolean;
-  data: T;
-  message?: string;
-};
+export interface ClientUser {
+  id_user: number;
+  email: string;
+  i_rol: number;
+  i_status: number;
+  dt_register: string;
+  dt_updated: string;
+  name: string;
+  lastname: string;
+  id_client: number;
+  id_user_creator: number;
+}
 
-const authHeaders = () => {
-  const token = useAuthStore.getState().token;
-  return {
-    "Content-Type": "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  } as HeadersInit;
-};
-
-// POST: registrar usuario por negocio
-export const registerUserInClient = async (NewUserPayload: {name: string, lastname: string, email: string, id_user_creator: number, id_client: number}): Promise<ApiResponse<Usuario>> => {
-  const res = await fetch(
-    `${API_URL}/admin/create-user-in-client`,
-    {
-      method: "POST",
-      headers: authHeaders(),
-      body: JSON.stringify(NewUserPayload),
-    }
-  );
-
-  if (!res.ok) throw new Error("Error al obtener usuarios del negocio");
-  return res.json();
+// POST: registrar usuario en cliente
+export const registerUserInClient = async (payload: {
+  name: string;
+  lastname: string;
+  email: string;
+  password: string;
+  i_rol: number;
+  id_user_creator: number;
+  id_client: number;
+}): Promise<ApiResponse<ClientUser>> => {
+  return api.post<ApiResponse<ClientUser>>("/users/", payload);
 };
 
 // GET: obtener usuarios por negocio
 export const getUsersByBusiness = async (id_negocio: number): Promise<ApiResponse<Usuario[]>> => {
-  const res = await fetch(
-    `${API_URL}/admin/get-users-by-business`,
-    {
-      method: "POST",
-      headers: authHeaders(),
-      body: JSON.stringify({ id_negocio }),
-    }
-  );
-  if (!res.ok) throw new Error("Error al obtener usuarios del negocio");
-  return res.json();
+  return api.post<ApiResponse<Usuario[]>>("/admin/get-users-by-business", { id_negocio });
 };
 
+// GET: obtener usuarios por cliente (SuperAdmin)
+export const getUsersByIdClient = async (id_client: number): Promise<ApiResponse<ClientUser[]>> => {
+  return api.get<ApiResponse<ClientUser[]>>(`/users/${id_client}`);
+};
